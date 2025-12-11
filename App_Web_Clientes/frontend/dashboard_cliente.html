@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Empeños - Auto Empeño Luna</title>
+    <link rel="stylesheet" href="cliente_estilos.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="brand-area">
+            <div class="logo-container">
+                <img src="LOGOEMP.png" alt="Logo Luna" class="logo-img" onerror="this.src='https://via.placeholder.com/50/ffc107/000?text=LUNA'">
+            </div>
+            <div class="brand-text">
+                <h1>AUTO EMPEÑO <span class="text-gold">LUNA</span></h1>
+                <small>Panel de Cliente</small>
+            </div>
+        </div>
+        
+        <div class="user-area">
+            <div class="user-info hide-mobile">
+                <span class="welcome-label">Bienvenido,</span>
+                <span class="user-name">Luis Guzmán</span>
+            </div>
+            <button class="btn-logout" title="Cerrar Sesión">
+                <i class="ri-logout-box-r-line"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="main-container">
+
+        <section class="search-section">
+            <div class="search-bar-wrapper">
+                <i class="ri-search-2-line search-icon"></i>
+                <input type="text" id="searchInput" placeholder="Buscar por boleta, artículo, estado...">
+                <button class="search-btn">Buscar</button>
+            </div>
+        </section>
+
+        <section class="empenos-section">
+            <div class="section-header">
+                <h2 class="section-title">Mis Contratos</h2>
+            </div>
+
+            <div class="cards-grid" id="cardsContainer">
+
+                <article class="pawn-card status-vigente">
+                    <div class="card-top-accent"></div>
+                    <div class="card-header">
+                        <div class="icon-box success"><i class="ri-check-double-line"></i></div>
+                        <div class="header-info">
+                            <h3 class="article-title">Smart TV Samsung 55"</h3>
+                            <span class="boleta-tag">Boleta #12345</span>
+                        </div>
+                        <span class="status-pill success">VIGENTE</span>
+                    </div>
+                    
+                    <div class="card-body">
+                        <div class="money-display">
+                            <span class="money-label">Monto Préstamo</span>
+                            <span class="money-value">$4,500.00</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="label"><i class="ri-calendar-line"></i> Vence:</span>
+                            <strong class="text-success">20 Dic 2025</strong>
+                        </div>
+                        <div class="data-row highlight-box success-light">
+                            <span class="label">Total Liquidación:</span>
+                            <strong class="big-text">$4,725.00</strong>
+                        </div>
+                    </div>
+
+                    <div class="card-footer three-buttons">
+                        <button class="btn-action btn-dark span-2" data-tipo="desempeno" data-monto="$4,725.00" data-concepto="Liquidación Anticipada">
+                            <i class="ri-secure-payment-line"></i> Desempeñar / Liquidar
+                        </button>
+                        
+                        <button class="btn-secondary btn-details" 
+                            data-titulo="Smart TV Samsung 55 4K" data-boleta="#12345" data-estado="Vigente"
+                            data-prestamo="$4,500.00" data-interes="$225.00" data-inicio="20 Nov 2025" data-fin="20 Dic 2025"
+                            data-descripcion="Incluye control remoto y cable de corriente. Serie: S88-999.">
+                            <i class="ri-eye-line"></i> Ver Detalles Completos
+                        </button>
+                    </div>
+                </article>
+
+                <article class="pawn-card status-warning">
+                    <div class="card-top-accent"></div>
+                    <div class="card-header">
+                        <div class="icon-box warning"><i class="ri-alarm-warning-fill"></i></div>
+                        <div class="header-info">
+                            <h3 class="article-title">Taladro Dewalt 20V</h3>
+                            <span class="boleta-tag">Boleta #12348</span>
+                        </div>
+                        <span class="status-pill warning">POR VENCER</span>
+                    </div>
+                    
+                    <div class="card-body">
+                        <div class="money-display">
+                            <span class="money-label">Préstamo</span>
+                            <span class="money-value">$1,200.00</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="label"><i class="ri-error-warning-line"></i> Límite:</span>
+                            <strong class="text-warning">MAÑANA</strong>
+                        </div>
+                        <div class="data-row highlight-box warning-light">
+                            <span class="label">Pago Refrendo:</span>
+                            <strong class="big-text text-warning">$60.00</strong>
+                        </div>
+                    </div>
+
+                    <div class="card-footer three-buttons">
+                         <button class="btn-action btn-gold" data-tipo="refrendo" data-monto="$60.00" data-concepto="Refrendo Mensual">
+                            <i class="ri-history-line"></i> Refrendar
+                        </button>
+                        <button class="btn-action btn-dark" data-tipo="desempeno" data-monto="$1,260.00" data-concepto="Liquidación Total">
+                            <i class="ri-secure-payment-line"></i> Desempeñar
+                        </button>
+                        <button class="btn-secondary btn-details"
+                            data-titulo="Taladro Dewalt Inalámbrico"
+                            data-boleta="#12348" data-estado="Por Vencer"
+                            data-prestamo="$1,200.00" data-interes="$60.00" data-inicio="15 Nov 2025" data-fin="15 Dic 2025"
+                            data-descripcion="Estuche rígido amarillo. Incluye 2 baterías.">
+                            <i class="ri-eye-line"></i> Ver Detalles Completos
+                        </button>
+                    </div>
+                </article>
+
+                <article class="pawn-card status-vencido">
+                    <div class="card-top-accent"></div>
+                    <div class="card-header">
+                        <div class="icon-box danger"><i class="ri-close-circle-line"></i></div>
+                        <div class="header-info">
+                            <h3 class="article-title">Consola PlayStation 5</h3>
+                            <span class="boleta-tag">Boleta #13001</span>
+                        </div>
+                        <span class="status-pill danger">VENCIDO</span>
+                    </div>
+                    
+                    <div class="card-body">
+                        <div class="money-display danger-light">
+                            <span class="money-label">Estatus de Pago</span>
+                            <span class="money-value" style="font-size: 1.1rem; color: #c0392b;">REQUIERE CÁLCULO</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="label"><i class="ri-calendar-event-line"></i> Venció el:</span>
+                            <strong class="text-danger">01 Dic 2025</strong>
+                        </div>
+                        <div class="data-row">
+                            <span class="label"><i class="ri-file-warning-line"></i> Situación:</span>
+                            <strong>Días de Gracia / Multa</strong>
+                        </div>
+                    </div>
+
+                    <div class="card-footer">
+                        <button class="btn-action btn-danger full-width" onclick="mostrarAlertaVencido()">
+                            <i class="ri-store-2-line"></i> Acudir a Sucursal para Recuperar
+                        </button>
+                    </div>
+                </article>
+
+                <article class="pawn-card status-desempenado">
+                    <div class="card-top-accent"></div>
+                    <div class="card-header">
+                        <div class="icon-box neutral"><i class="ri-shake-hands-fill"></i></div>
+                        <div class="header-info">
+                            <h3 class="article-title">Anillo Oro 14k</h3>
+                            <span class="boleta-tag">Boleta #11050</span>
+                        </div>
+                        <span class="status-pill neutral">PAGADO</span>
+                    </div>
+                    
+                    <div class="card-body">
+                        <div class="money-display neutral-light">
+                            <span class="money-label">Total Pagado</span>
+                            <span class="money-value text-dark">$3,100.00</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="label"><i class="ri-calendar-line"></i> Inicio:</span>
+                            <strong>10 Sep 2025</strong>
+                        </div>
+                        <div class="data-row">
+                            <span class="label"><i class="ri-calendar-check-line"></i> Retiro:</span>
+                            <strong>10 Oct 2025</strong>
+                        </div>
+                    </div>
+
+                    <div class="card-footer">
+                        <button class="btn-secondary full-width btn-ticket"
+                            data-titulo="Anillo Oro 14k" data-boleta="#11050" data-total="$3,100.00">
+                            <i class="ri-file-history-line"></i> Ver Comprobante
+                        </button>
+                    </div>
+                </article>
+
+                <article class="pawn-card status-perdido">
+                    <div class="card-top-accent"></div>
+                    <div class="card-header">
+                        <div class="icon-box dark"><i class="ri-archive-line"></i></div>
+                        <div class="header-info">
+                            <h3 class="article-title">Moto Italika 150Z</h3>
+                            <span class="boleta-tag">Boleta #09800</span>
+                        </div>
+                        <span class="status-pill dark">PERDIDO</span>
+                    </div>
+                    
+                    <div class="card-body">
+                        <div class="money-display dark-light">
+                            <span class="money-label">Estado Actual</span>
+                            <span class="money-value text-dark-bold">PERDIDO</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="label"><i class="ri-calendar-close-line"></i> Venció:</span>
+                            <strong>01 Sep 2025</strong>
+                        </div>
+                        <div class="data-row">
+                            <span class="label"><i class="ri-coins-line"></i> Deuda Cancelada:</span>
+                            <strong class="text-danger">$12,000.00</strong>
+                        </div>
+                    </div>
+
+                    <div class="card-footer">
+                        <button class="btn-secondary full-width btn-details danger-border"
+                            data-titulo="Moto Italika 150Z" data-boleta="#09800" data-estado="Perdido"
+                            data-prestamo="$12,000.00" data-interes="$600.00"
+                            data-inicio="01 Ago 2025" data-fin="01 Sep 2025"
+                            data-descripcion="El artículo pasó a comercialización debido a falta de refrendo en el periodo contractual.">
+                            <i class="ri-information-line"></i> Ver Motivo / Detalles
+                        </button>
+                    </div>
+                </article>
+
+            </div>
+        </section>
+    </main>
+
+    <div id="modalDetalles" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitulo">Titulo Articulo</h3>
+                <button class="close-modal"><i class="ri-close-line"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-grid">
+                    <div class="modal-item">
+                        <span class="modal-label">Boleta</span>
+                        <strong id="modalBoleta">--</strong>
+                    </div>
+                    <div class="modal-item">
+                        <span class="modal-label">Estado Actual</span>
+                        <strong id="modalEstado">--</strong>
+                    </div>
+                    <div class="modal-item full">
+                        <span class="modal-label">Descripción del Artículo</span>
+                        <p id="modalDescripcion" class="desc-text">...</p>
+                    </div>
+                    <div class="modal-item highlight-box full">
+                        <div class="flex-spread">
+                            <div>
+                                <span class="modal-label">Fecha Inicio</span>
+                                <strong id="modalInicio">--</strong>
+                            </div>
+                            <div style="text-align: right;">
+                                <span class="modal-label">Fecha Vencimiento</span>
+                                <strong id="modalFin">--</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-item">
+                        <span class="modal-label">Monto Préstamo</span>
+                        <strong id="modalPrestamo" class="money-text">--</strong>
+                    </div>
+                    <div class="modal-item">
+                        <span class="modal-label">Interés / Refrendo</span>
+                        <strong id="modalInteres" class="money-text">--</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary full-width close-modal-btn">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalPago" class="modal-overlay">
+        <div class="modal-content payment-modal">
+            <div class="modal-header">
+                <h3 id="paymentTitle">Métodos de Pago</h3>
+                <button class="close-modal close-payment"><i class="ri-close-line"></i></button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="payment-summary">
+                    <span class="payment-concept" id="paymentConcept">--</span>
+                    <h2 class="payment-amount" id="paymentAmount">$0.00</h2>
+                    <p class="payment-due">Boleta: <span id="paymentBoletaRef">#000</span></p>
+                </div>
+
+                <div class="payment-methods">
+                    <div class="method active" id="btnTabTransfer" onclick="cambiarPestana('transfer')">
+                        <i class="ri-bank-fill"></i> Transferencia
+                    </div>
+                    <div class="method" id="btnTabBranch" onclick="cambiarPestana('branch')">
+                        <i class="ri-store-2-fill"></i> En Sucursal
+                    </div>
+                </div>
+
+                <div id="viewTransfer" class="transfer-container">
+                    <p class="transfer-instruction">Realiza tu transferencia a la cuenta oficial y envía tu comprobante:</p>
+                    
+                    <div class="bank-details-card">
+                        <div class="bank-row">
+                            <span class="bank-label">Banco:</span>
+                            <span class="bank-value">BBVA Bancomer</span>
+                        </div>
+                        <div class="bank-row">
+                            <span class="bank-label">Beneficiario:</span>
+                            <span class="bank-value">Auto Empeño Luna S.A.</span>
+                        </div>
+                        <div class="bank-row highlight-row">
+                            <span class="bank-label">CLABE:</span>
+                            <span class="bank-value copy-text">012 180 0155449988 7 <i class="ri-file-copy-line"></i></span>
+                        </div>
+                        <div class="bank-row">
+                            <span class="bank-label">Concepto:</span>
+                            <span class="bank-value text-gold" id="conceptBoleta">Pago Boleta #...</span>
+                        </div>
+                    </div>
+
+                    <button class="btn-whatsapp full-width" onclick="alert('Abriendo WhatsApp para enviar comprobante...')">
+                        <i class="ri-whatsapp-line"></i> Enviar Comprobante por WhatsApp
+                    </button>
+                </div>
+
+                <div id="viewBranch" class="transfer-container" style="display: none;">
+                    <p class="transfer-instruction">Puedes realizar tu pago en efectivo directamente en caja.</p>
+                    
+                    <div class="bank-details-card" style="text-align: center;">
+                        <i class="ri-map-pin-line" style="font-size: 2rem; color: var(--brand-dark);"></i>
+                        <h4 style="margin: 10px 0; color: var(--brand-dark);">Sucursal Centro</h4>
+                        <p style="font-size: 0.9rem; color: #555;">Av. 5 de Mayo #123, Col. Centro.<br>Huajuapan de León, Oax.</p>
+                        <hr class="divider">
+                        <p style="font-size: 0.85rem; color: #777;"><strong>Horario:</strong><br>Lunes a Viernes: 9:00 AM - 6:00 PM<br>Sábados: 9:00 AM - 2:00 PM</p>
+                    </div>
+
+                    <button class="btn-secondary full-width" onclick="window.open('https://maps.google.com')">
+                        <i class="ri-direction-line"></i> Ver Ubicación
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="modalAlertVencido" class="modal-overlay">
+        <div class="modal-content alert-modal">
+            <div class="modal-header header-danger">
+                <h3><i class="ri-alarm-warning-fill"></i> Atención: Contrato Vencido</h3>
+                <button class="close-modal"><i class="ri-close-line"></i></button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="alert-icon-wrapper"><i class="ri-error-warning-line alert-icon-pulse"></i></div>
+                <h4 class="alert-title">El plazo de refrendo ha expirado</h4>
+                <p class="alert-description">Para recuperar tu prenda, es necesario realizar un cálculo manual en caja debido a los recargos generados.</p>
+                <div class="policy-box">
+                    <h5 class="policy-title">Políticas de Recuperación:</h5>
+                    <ul class="policy-list">
+                        <li><i class="ri-calendar-check-line"></i><span><strong>5 días de gracia</strong> tras vencimiento.</span></li>
+                        <li><i class="ri-coins-line"></i><span>Comisión de <strong>$10 a $20</strong> por día excedido.</span></li>
+                        <li><i class="ri-auction-line"></i><span>Si excede los días de gracia, aplica <strong>multa extra</strong>.</span></li>
+                    </ul>
+                </div>
+                <div class="store-instruction"><i class="ri-store-3-fill"></i><span>Acude a tu sucursal hoy mismo.</span></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-action btn-danger full-width close-modal-btn">Entendido, iré a sucursal</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalComprobante" class="modal-overlay">
+        <div class="modal-content receipt-modal">
+            <div class="ticket-wrapper">
+                <div class="ticket-header">
+                    <img src="LOGOEMP.png" alt="Logo" class="ticket-logo">
+                    <h3>AUTO EMPEÑO LUNA</h3>
+                    <p>Sucursal Centro</p>
+                    <p>RFC: AEL-998877</p>
+                    <p class="ticket-datetime">10 Oct 2025 - 14:30 PM</p>
+                </div>
+                <div class="dashed-line"></div>
+                <div class="ticket-body">
+                    <div class="ticket-row"><span>Folio:</span><strong>A-998877</strong></div>
+                    <div class="ticket-row"><span>Boleta:</span><strong id="ticketBoleta">--</strong></div>
+                    <div class="ticket-row"><span>Cliente:</span><strong>Luis Guzmán</strong></div>
+                    <div class="ticket-row"><span>Movimiento:</span><strong id="ticketMovimiento">DESEMPEÑO</strong></div>
+                </div>
+                <div class="dashed-line"></div>
+                <div class="ticket-item"><p id="ticketArticulo">--</p></div>
+                <div class="dashed-line"></div>
+                <div class="ticket-totals">
+                    <div class="ticket-row total-row"><span>TOTAL PAGADO:</span><span id="ticketTotal">--</span></div>
+                </div>
+                <div class="dashed-line"></div>
+                <div class="ticket-footer">
+                    <p>¡Gracias por su preferencia!</p>
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg" class="qr-code" alt="QR">
+                </div>
+                <button class="btn-print" onclick="window.print()"><i class="ri-printer-line"></i> Imprimir</button>
+                <button class="btn-close-ticket close-ticket">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function cerrarModales() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active')); }
+        document.querySelectorAll('.close-modal, .close-payment, .close-ticket, .close-modal-btn').forEach(b => b.addEventListener('click', cerrarModales));
+        document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if(e.target === m) cerrarModales(); }));
+        document.getElementById('searchInput').addEventListener('keyup', function(e) { const term = e.target.value.toLowerCase(); document.querySelectorAll('.pawn-card').forEach(c => { c.style.display = c.textContent.toLowerCase().includes(term) ? 'block' : 'none'; }); });
+
+        // VER DETALLES
+        document.querySelectorAll('.btn-details').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.getElementById('modalTitulo').textContent = this.dataset.titulo;
+                document.getElementById('modalBoleta').textContent = this.dataset.boleta;
+                document.getElementById('modalEstado').textContent = this.dataset.estado;
+                document.getElementById('modalDescripcion').textContent = this.dataset.descripcion;
+                document.getElementById('modalInicio').textContent = this.dataset.inicio;
+                document.getElementById('modalFin').textContent = this.dataset.fin;
+                document.getElementById('modalPrestamo').textContent = this.dataset.prestamo;
+                document.getElementById('modalInteres').textContent = this.dataset.interes;
+                const est = document.getElementById('modalEstado'); est.className = ''; 
+                if(this.dataset.estado === 'Vigente') est.style.color = 'var(--color-success)';
+                else if(this.dataset.estado === 'Vencido') est.style.color = 'var(--color-danger)';
+                else if(this.dataset.estado === 'Perdido') est.style.color = '#2d3436';
+                document.getElementById('modalDetalles').classList.add('active');
+            });
+        });
+
+        // ABRIR MODAL PAGO (Solo Info)
+        document.querySelectorAll('.btn-action').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if(this.onclick) return; // Si tiene alerta, salir.
+
+                const tipo = this.dataset.tipo; const monto = this.dataset.monto; const concepto = this.dataset.concepto;
+                const card = this.closest('.pawn-card'); const boleta = card.querySelector('.boleta-tag').textContent;
+                
+                document.getElementById('paymentTitle').textContent = tipo === 'refrendo' ? "Refrendar Contrato" : "Desempeñar Prenda";
+                document.getElementById('paymentConcept').textContent = concepto;
+                document.getElementById('paymentAmount').textContent = monto;
+                document.getElementById('paymentBoletaRef').textContent = boleta;
+                document.getElementById('conceptBoleta').textContent = "Pago " + boleta;
+                
+                // Reset a Transferencia
+                cambiarPestana('transfer');
+                document.getElementById('modalPago').classList.add('active');
+            });
+        });
+
+        // CAMBIAR PESTAÑAS
+        function cambiarPestana(tab) {
+            if(tab === 'transfer') {
+                document.getElementById('btnTabTransfer').classList.add('active'); document.getElementById('btnTabBranch').classList.remove('active');
+                document.getElementById('viewTransfer').style.display = 'block'; document.getElementById('viewBranch').style.display = 'none';
+            } else {
+                document.getElementById('btnTabBranch').classList.add('active'); document.getElementById('btnTabTransfer').classList.remove('active');
+                document.getElementById('viewBranch').style.display = 'block'; document.getElementById('viewTransfer').style.display = 'none';
+            }
+        }
+
+        // TICKET
+        document.querySelectorAll('.btn-ticket').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.getElementById('ticketBoleta').textContent = this.dataset.boleta;
+                document.getElementById('ticketArticulo').textContent = this.dataset.titulo;
+                document.getElementById('ticketTotal').textContent = this.dataset.total;
+                document.getElementById('modalComprobante').classList.add('active');
+            });
+        });
+
+        // ALERTA VENCIDO
+        function mostrarAlertaVencido() {
+            document.getElementById('modalAlertVencido').classList.add('active');
+        }
+    </script>
+</body>
+</html>

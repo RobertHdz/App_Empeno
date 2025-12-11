@@ -1,0 +1,238 @@
+/*Forzamos los estilos de los botones*/
+.login-btn {
+  width: 100%;
+  padding: 14px;
+  background-color: #f5b301 !important; /* Amarillo de tu marca */ 
+  color: #113b64;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+  margin-top: 10px;
+}
+
+.login-btn:hover {
+  background-color: #113b64 !important; /* Azul de tu marca */
+  color: white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+
+
+/* =======================================================
+   FUENTES Y ESTRUCTURA PRINCIPAL
+========================================================== */
+body {
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  margin: 0;
+  background-color: #f2f2f2; /* Fondo gris claro */
+}
+
+/* =======================================================
+   DISEÑO SPLIT-SCREEN (ESCRITORIO Y TABLET)
+========================================================== */
+.split-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100vh;
+}
+
+/* =======================================================
+   LADO IZQUIERDO (BRANDING)
+========================================================== */
+.brand-side {
+  background-color: #113b64; /* Azul de tu marca */
+  color: white;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.brand-logo img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 4px solid #f5b301; /* Borde amarillo de tu marca */
+  margin-bottom: 20px;
+}
+
+.brand-side h1 {
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  font-size: 40px;
+  margin: 0;
+  line-height: 1.1;
+  font-weight: 900;
+}
+
+.brand-side h1 span {
+  display: block; /* "LUNA" abajo */
+  font-size: 0.9em;
+  color: #f5b301; /* Amarillo de tu marca */
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.brand-side p {
+  font-size: 18px;
+  margin-top: 15px;
+  opacity: 0.8;
+}
+
+/* ¡NUEVO! Estilos para el Slogan */
+.slogan {
+  font-weight: 800;
+  font-size: 20px;
+  line-height: 1.4;
+  opacity: 1; /* Hacemos que el slogan sea totalmente opaco */
+  margin-top: 30px; /* Más espacio para separarlo */
+}
+
+.slogan span {
+  background-color: #f5b301;
+  color: #113b64;
+  padding: 3px 20px;
+  border-radius: 5px;
+  display: inline-block; /* Para que el fondo se ajuste al texto */
+  margin-top: 5px;
+}
+
+
+/* =======================================================
+   LADO DERECHO (FORMULARIO)
+========================================================== */
+.form-side {
+  background-color: #f2f2f2;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-form {
+  width: 100%;
+  max-width: 400px;
+  background-color: white;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+}
+
+.form-side h2 {
+  color: #113b64;
+  font-size: 32px;
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 30px;
+}
+
+.input-group {
+  margin-bottom: 25px;
+  text-align: left;
+  position: relative;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #113b64;
+  font-size: 14px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box; 
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 16px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.input-group input:focus {
+  border-color: #f5b301;
+  box-shadow: 0 0 8px rgba(245, 179, 1, 0.4);
+  outline: none;
+}
+
+
+.error-msg {
+  color: #D8000C;
+  background-color: #FFD2D2;
+  border: 1px solid #D8000C;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 14px;
+  font-family: Arial, sans-serif;
+  display: none;
+  margin-top: 20px;
+}
+
+
+
+/* =======================================================
+   ¡NUEVO DISEÑO PARA CELULAR!
+========================================================== */
+@media (max-width: 768px) {
+  
+  .split-container {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+  
+  .brand-side {
+    min-height: auto;
+    padding: 30px 20px 60px 20px;
+    border-bottom-left-radius: 30px;
+    border-bottom-right-radius: 30px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  
+  .brand-logo img {
+    width: 90px;
+    height: 90px;
+  }
+  .brand-side h1 {
+    font-size: 30px;
+  }
+  
+  .brand-side p {
+    font-size: 16px;
+  }
+
+  /* ¡NUEVO! Ajuste del slogan en móvil */
+  .slogan {
+    font-size: 18px;
+    margin-top: 20px;
+  }
+  
+  .slogan span {
+    padding: 2px 15px;
+  }
+
+  .form-side {
+    padding: 0;
+  }
+
+  .login-form {
+    margin: -40px 20px 30px 20px;
+    padding: 30px;
+    position: relative;
+    z-index: 2;
+    max-width: none;
+  }
+  
+  .form-side h2 {
+    font-size: 26px;
+  }
+}
+
