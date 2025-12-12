@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Revalúo - Panel de Control</title>
+  <link rel="stylesheet" href="ref.css"> 
+</head>
+<body>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <img src="LOGOEMP.png" alt="Logo" class="sidebar-logo">
+      <h2>Panel de <span>Control</span></h2>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <ul>
+        <li><a href="index.html">
+          <span class="icon">&#127968;</span> Resumen
+        </a></li>
+        <li><a href="nuev_emp.html" >
+          <span class="icon">&#10133;</span> Nuevo Empeño
+        </a></li>
+        <li><a href="ref.html">
+          <span class="icon">&#128260;</span> Refrendo
+        </a></li>
+        <li><a href="desemp.html">
+          <span class="icon">&#9989;</span> Desempeño
+        </a></li>
+        <li><a href="reevaluo.html" class="active">
+          <span class="icon">&#128220;</span> Revalúo
+        </a></li>
+        <li><a href="clientes.html">
+          <span class="icon">&#128101;</span> Clientes
+        </a></li>
+        <li><a href="history.html">
+          <span class="icon">&#128214;</span> Historial Empeños
+        </a></li>
+        <li><a href="remate.html">
+          <span class="icon">&#128739;</span> Remate Empeños
+        </a></li>
+      </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="index.html" class="logout-button">
+        <span class="icon">&#128682;</span> Cerrar Sesión
+      </a>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    
+    <header class="main-header">
+      <button id="menu-toggle" class="hamburger-button">&#9776;</button>
+      <h1>Registrar Revalúo de Prenda</h1>
+      <div class="user-info">
+        <span>Bienvenido</span>
+      </div>
+    </header>
+
+    <main class="content">
+      
+      <section class="loan-selection">
+        <h2><span class="icon">&#128269;</span> Buscar Cliente</h2>
+        
+        <div class="search-bar">
+          <input type="text" id="busqueda-input" placeholder="Nombre, INE o Celular...">
+          <button type="button" id="btn-buscar" class="search-btn">Buscar</button>
+        </div>
+
+        <p class="instruction-text">Selecciona un empeño para renegociar:</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Acción</th>
+              <th>Folio</th>
+              <th>Artículo</th>
+              <th>Monto Actual</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-resultados-body">
+            <tr>
+              <td colspan="5" style="text-align:center; color: #999;">
+                Usa el buscador para ver resultados
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <div class="refrendo-details"> 
+        <div class="refrendo-header">
+          <h2>Detalles del Revalúo</h2>
+        </div>
+        
+        <form id="form-reevaluo">
+            <div class="refrendo-details-content">
+                
+                <div class="form-grid">
+                  <div class="input-group">
+                    <label>Cliente</label>
+                    <input type="text" id="info-cliente" readonly placeholder="Seleccione cliente...">
+                  </div>
+                  <div class="input-group">
+                    <label>Artículo</label>
+                    <input type="text" id="info-articulo" readonly>
+                  </div>
+                </div>
+
+                <div class="form-grid cols-2">
+                  <div class="input-group">
+                    <label>Préstamo ACTUAL ($)</label>
+                    <input type="text" id="info-prestamo-actual" readonly style="background-color: #ffecec;">
+                  </div>
+                  <div class="input-group">
+                    <label>Avalúo ACTUAL ($)</label>
+                    <input type="text" id="info-valuo-actual" readonly>
+                  </div>
+                </div>
+
+                <hr>
+                <h3 class="subsection-title"><span class=\"icon\">&#128200;</span> Nueva Negociación</h3>
+
+                <div class="form-grid cols-2">
+                  <div class="input-group">
+                    <label>Nuevo Avalúo ($)</label>
+                    <input type="number" id="nuevo-valuo" step="0.01" min="0" inputmode="decimal" pattern="^\\d+(\\.\\d{1,2})?$" placeholder="0.00">
+                  </div>
+                  <div class="input-group">
+                    <label>Nuevo Préstamo ($)</label>
+                    <input type="number" id="nuevo-prestamo" step="0.01" min="0" inputmode="decimal" pattern="^\\d+(\\.\\d{1,2})?$" placeholder="0.00">
+                  </div>
+                </div>
+
+                <div class="input-group">
+                  <label style="color: green; font-weight: bold;">Monto Adicional a Entregar al Cliente ($)</label>
+                  <input type="text" id="monto-adicional" value="$0.00" readonly style="color: green; font-weight: bold; font-size: 1.2em;">
+                </div>
+
+                <div class="form-grid cols-2">
+                  <div class="input-group">
+                    <label>Nuevo Interés (%)</label>
+                    <input type="number" id="nuevo-interes" value="10">
+                  </div>
+                  <div class="input-group">
+                    <label>Nuevo Pago Mensual (Refrendo)</label>
+                    <input type="text" id="nuevo-refrendo" readonly>
+                  </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" class="btn btn-secondary" onclick="window.location.href='dash.html'">Cancelar</button>
+              <button type="submit" id="btn-guardar" class="btn btn-primary" disabled>Confirmar Revalúo</button>
+            </div>
+        </form>
+      </div>  
+
+    </main>
+  </div>
+
+  <div class="overlay" id="overlay"></div>
+  <script>
+    // Lógica para CERRAR SESIÓN
+    const btnLogout = document.querySelector('.logout-button');
+
+    if (btnLogout) {
+        btnLogout.addEventListener('click', (e) => {
+            e.preventDefault(); // Evita que el enlace navegue solo
+            
+            // 1. Borramos la llave del navegador
+            localStorage.removeItem('token_auto_empeno');
+            
+            // 2. (Opcional) Avisamos al usuario
+            alert('Sesión cerrada correctamente');
+
+            // 3. Redirigimos al Login
+            window.location.href = '/';
+        });
+    }
+
+    // Lógica de PROTECCIÓN (Si no tienes llave, ¡fuera de aquí!)
+    const token = localStorage.getItem('token_auto_empeno');
+    if (!token) {
+        window.location.href = '/';
+    }
+
+    let empenoSeleccionado = null; // Guardará el objeto entero del empeño
+
+    // --- 1. BÚSQUEDA (Reutilizamos lógica) ---
+    const btnBuscar = document.getElementById('btn-buscar');
+    const inputBusqueda = document.getElementById('busqueda-input');
+    const tbody = document.getElementById('tabla-resultados-body');
+
+    btnBuscar.addEventListener('click', async () => {
+        const q = inputBusqueda.value;
+        const res = await fetch(`/clientes/buscar?q=${q}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const clientes = await res.json();
+        
+        tbody.innerHTML = '';
+        if(clientes.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5">No se encontraron resultados</td></tr>'; 
+            return;
+        }
+
+        clientes.forEach(c => {
+            if(c.empenos) c.empenos.forEach(e => {
+                if(e.estado === 'Vigente' || e.estado === 'Vencido') {
+                    const tr = document.createElement('tr');
+                    // Guardamos el objeto 'e' (empeño) y 'c' (cliente) en el botón para usarlos fácil
+                    const dataStr = encodeURIComponent(JSON.stringify({e, c}));
+                    tr.innerHTML = `
+                      <td><button type="button" class="btn-select" onclick="seleccionar('${dataStr}')">Select</button></td>
+                      <td>${e.id}</td>
+                      <td>${e.marca_modelo}</td>
+                      <td>$${e.monto_prestamo}</td>
+                      <td>${e.estado}</td>
+                    `;
+                    tbody.appendChild(tr);
+                }
+            });
+        });
+    });
+
+    // --- 2. SELECCIÓN ---
+    window.seleccionar = function(dataStr) {
+        const data = JSON.parse(decodeURIComponent(dataStr));
+        empenoSeleccionado = data.e;
+
+        // Llenar Info Actual
+        document.getElementById('info-cliente').value = data.c.nombre + ' ' + data.c.apellidos;
+        document.getElementById('info-articulo').value = data.e.marca_modelo;
+        document.getElementById('info-prestamo-actual').value = `$${data.e.monto_prestamo}`;
+        document.getElementById('info-valuo-actual').value = `$${data.e.valor_valuo}`;
+
+        // Preparar campos nuevos con valores actuales por defecto
+        document.getElementById('nuevo-valuo').value = data.e.valor_valuo;
+        document.getElementById('nuevo-prestamo').value = data.e.monto_prestamo;
+        
+        calcular(); // Ejecutar cálculo inicial
+        document.getElementById('btn-guardar').disabled = false;
+    };
+
+    // --- 3. CÁLCULOS EN VIVO ---
+    const inPrestamo = document.getElementById('nuevo-prestamo');
+    const inInteres = document.getElementById('nuevo-interes');
+
+    // Sanitizar inputs numéricos: asegura solo números positivos y hasta 2 decimales
+    function sanitizePositiveNumericInput(inputEl) {
+      if (!inputEl) return;
+      inputEl.addEventListener('input', () => {
+        // Reemplaza comas por punto y quita todo lo que no sea dígito o punto
+        let v = inputEl.value.replace(/,/g, '.').replace(/[^0-9.]/g, '');
+        // Si hay más de un punto, dejar sólo el primero
+        const parts = v.split('.');
+        if (parts.length > 1) {
+          v = parts.shift() + '.' + parts.join('');
+        }
+        // Limitar a dos decimales
+        if (v.indexOf('.') >= 0) {
+          const [intPart, decPart] = v.split('.');
+          v = intPart + '.' + decPart.slice(0, 2);
+        }
+        // Evitar valores negativos
+        if (v.startsWith('-')) v = v.replace('-', '');
+        inputEl.value = v;
+      });
+      inputEl.addEventListener('paste', (e) => {
+        const text = (e.clipboardData || window.clipboardData).getData('text');
+        if (!/^[0-9.,]+$/.test(text)) {
+          e.preventDefault();
+        }
+      });
+    }
+
+    // Aplicar sanitización a los campos relevantes
+    sanitizePositiveNumericInput(document.getElementById('nuevo-prestamo'));
+    sanitizePositiveNumericInput(document.getElementById('nuevo-valuo'));
+    sanitizePositiveNumericInput(document.getElementById('nuevo-interes'));
+
+    function calcular() {
+        if(!empenoSeleccionado) return;
+
+        const prestamoActual = parseFloat(empenoSeleccionado.monto_prestamo);
+        const nuevoPrestamo = parseFloat(inPrestamo.value) || 0;
+        const tasa = parseFloat(inInteres.value) || 0;
+
+        // A. Diferencia a entregar
+        const diferencia = nuevoPrestamo - prestamoActual;
+        const inputAdicional = document.getElementById('monto-adicional');
+        
+        if(diferencia > 0) {
+            inputAdicional.value = `$${diferencia.toFixed(2)} (Entregar al Cliente)`;
+            inputAdicional.style.color = "green";
+        } else if (diferencia < 0) {
+            inputAdicional.value = `$${Math.abs(diferencia).toFixed(2)} (Cliente debe abonar)`;
+            inputAdicional.style.color = "red";
+        } else {
+            inputAdicional.value = "$0.00";
+            inputAdicional.style.color = "black";
+        }
+
+        // B. Nuevo Refrendo Mensual
+        const nuevoRefrendo = nuevoPrestamo * (tasa / 100);
+        document.getElementById('nuevo-refrendo').value = `$${nuevoRefrendo.toFixed(2)}`;
+    }
+
+    inPrestamo.addEventListener('input', calcular);
+    inInteres.addEventListener('input', calcular);
+
+    // --- 4. GUARDAR (SUBMIT) ---
+    document.getElementById('form-reevaluo').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if(!empenoSeleccionado) return;
+
+        const payload = {
+            nuevo_prestamo: parseFloat(document.getElementById('nuevo-prestamo').value),
+            nuevo_valuo: parseFloat(document.getElementById('nuevo-valuo').value),
+            nuevo_interes: parseFloat(document.getElementById('nuevo-interes').value)
+        };
+
+        const res = await fetch(`/empenos/${empenoSeleccionado.id}/reevaluo`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if(res.ok) {
+            alert("✅ Revalúo exitoso.");
+            window.location.reload();
+        } else {
+            alert("Error al procesar");
+        }
+    });
+  </script>
+</body>
+</html>

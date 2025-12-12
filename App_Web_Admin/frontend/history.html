@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Historial de Empeños - Panel de Control</title>
+  <link rel="stylesheet" href="history.css"> 
+</head>
+<body>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <img src="LOGOEMP.png" alt="Logo" class="sidebar-logo">
+      <h2>Panel de <span>Control</span></h2>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <ul>
+        <li><a href="index.html">
+          <span class="icon">&#127968;</span> Resumen
+        </a></li>
+        <li><a href="nuev_emp.html" >
+          <span class="icon">&#10133;</span> Nuevo Empeño
+        </a></li>
+        <li><a href="ref.html">
+          <span class="icon">&#128260;</span> Refrendo
+        </a></li>
+        <li><a href="desemp.html">
+          <span class="icon">&#9989;</span> Desempeño
+        </a></li>
+        <li><a href="reevaluo.html" >
+          <span class="icon">&#128220;</span> Revalúo
+        </a></li>
+        <li><a href="clientes.html">
+          <span class="icon">&#128101;</span> Clientes
+        </a></li>
+        <li><a href="history.html"class="active">
+          <span class="icon">&#128214;</span> Historial Empeños
+        </a></li>
+        <li><a href="remate.html">
+          <span class="icon">&#128739;</span> Remate Empeños
+        </a></li>
+      </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="index.html" class="logout-button">
+        <span class="icon">&#128682;</span> Cerrar Sesión
+      </a>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    
+    <header class="main-header">
+      <button id="menu-toggle" class="hamburger-button">&#9776;</button>
+      <h1>Historial Completo de Empeños</h1>
+      <div class="user-info">
+        <span>Bienvenido</span>
+      </div>
+    </header>
+
+    <main class="content">
+      
+      <div class="search-section">
+        <h3><span class="icon">&#128269;</span> Buscar en Historial</h3>
+        
+        <div class="search-form-content">
+          <form id="search-form" class="search-form">
+            <div class="search-bar">
+              <input type="text" id="busqueda-producto" placeholder="Buscar por Artículo, Cliente o Folio...">
+              <button type="button" id="btn-buscar" class="search-btn">
+                <span>&#128269;</span> Buscar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="remate-container">
+        <h3>
+          <span class="icon">&#128214;</span> Todos los Registros
+        </h3>
+        
+        <div class="remate-content">
+          <div class="history-table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Folio</th>
+                  <th>Cliente</th>
+                  <th>Artículo</th> <th>Monto Préstamo</th>
+                  <th>Fecha Empeño</th>
+                  <th>Fecha Venc.</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody id="tabla-historial-body">
+                <tr><td colspan="7" style="text-align:center">Cargando historial...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <div class="overlay" id="overlay"></div>
+  <script>
+
+    let historialCompleto = []; // Aquí guardaremos todo para buscar rápido
+
+    // 2. CARGAR DATOS AL INICIO
+    document.addEventListener('DOMContentLoaded', async () => {
+      const tbody = document.getElementById('tabla-historial-body');
+      
+      try {
+        const response = await fetch('/empenos/todos', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+          historialCompleto = await response.json();
+          renderizarTabla(historialCompleto); // Mostrar todo al principio
+        } else {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align:center">Error al cargar datos</td></tr>';
+        }
+      } catch (error) {
+        console.error(error);
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center">Error de conexión</td></tr>';
+      }
+    });
+
+    // 3. FUNCIÓN PARA DIBUJAR LA TABLA
+    function renderizarTabla(datos) {
+      const tbody = document.getElementById('tabla-historial-body');
+      tbody.innerHTML = '';
+
+      if (datos.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center">No se encontraron coincidencias.</td></tr>';
+        return;
+      }
+
+      datos.forEach(item => {
+        const tr = document.createElement('tr');
+        
+        // Resolver nombre del cliente
+        let clienteNombre = `Cliente #${item.cliente_id}`;
+        if(item.cliente) {
+            clienteNombre = `${item.cliente.nombre} ${item.cliente.apellidos}`;
+        }
+
+        // Formato Moneda
+        const monto = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(item.monto_prestamo);
+        
+        // Estilo de Estado (minusculas para CSS)
+        const estadoClase = item.estado.toLowerCase();
+
+        tr.innerHTML = `
+          <td>${item.id}</td>
+          <td>${clienteNombre}</td>
+          <td style="font-weight:bold; color:#113b64;">${item.marca_modelo}</td> <td>${monto}</td>
+          <td>${item.fecha_empeno}</td>
+          <td>${item.fecha_vencimiento}</td>
+          <td><span class="status status-${estadoClase}">${item.estado}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // 4. LÓGICA DE BÚSQUEDA (FILTRO)
+    const inputBusqueda = document.getElementById('busqueda-producto');
+    
+    inputBusqueda.addEventListener('input', (e) => {
+        const texto = e.target.value.toLowerCase();
+
+        const filtrados = historialCompleto.filter(item => {
+            // Buscamos en: Artículo O Cliente O Folio
+            const matchArticulo = item.marca_modelo.toLowerCase().includes(texto);
+            const matchFolio = item.id.toString().includes(texto);
+            
+            let matchCliente = false;
+            if(item.cliente) {
+              const nombreC = `${item.cliente.nombre} ${item.cliente.apellidos}`.toLowerCase();
+              matchCliente = nombreC.includes(texto);
+            }
+
+            return matchArticulo || matchFolio || matchCliente;
+        });
+
+        renderizarTabla(filtrados);
+    });
+
+    // Lógica para CERRAR SESIÓN
+    const btnLogout = document.querySelector('.logout-button');
+
+    if (btnLogout) {
+        btnLogout.addEventListener('click', (e) => {
+            e.preventDefault(); // Evita que el enlace navegue solo
+            
+            // 1. Borramos la llave del navegador
+            localStorage.removeItem('token_auto_empeno');
+            
+            // 2. (Opcional) Avisamos al usuario
+            alert('Sesión cerrada correctamente');
+
+            // 3. Redirigimos al Login
+            window.location.href = '/';
+        });
+    }
+
+    // Lógica de PROTECCIÓN (Si no tienes llave, ¡fuera de aquí!)
+    const token = localStorage.getItem('token_auto_empeno');
+    if (!token) {
+        window.location.href = '/';
+    }
+  </script>
+</body>
+</html>

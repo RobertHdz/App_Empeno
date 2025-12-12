@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nuevo Empeño - Panel de Control</title>
+  <link rel="stylesheet" href="nuev_emp.css">
+</head>
+<body>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <img src="LOGOEMP.png" alt="Logo" class="sidebar-logo">
+      <h2>Panel de <span>Control</span></h2>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <ul>
+        <li><a href="index.html">
+          <span class="icon">&#127968;</span> Resumen
+        </a></li>
+        <li><a href="nuev_emp.html"  class="active">
+          <span class="icon">&#10133;</span> Nuevo Empeño
+        </a></li>
+        <li><a href="ref.html">
+          <span class="icon">&#128260;</span> Refrendo
+        </a></li>
+        <li><a href="desemp.html">
+          <span class="icon">&#9989;</span> Desempeño
+        </a></li>
+        <li><a href="reevaluo.html">
+          <span class="icon">&#128220;</span> Revalúo
+        </a></li>
+        <li><a href="clientes.html">
+          <span class="icon">&#128101;</span> Clientes
+        </a></li>
+        <li><a href="history.html">
+          <span class="icon">&#128214;</span> Historial Empeños
+        </a></li>
+        <li><a href="remate.html">
+          <span class="icon">&#128739;</span> Remate Empeños
+        </a></li>
+      </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="index.html" class="logout-button">
+        <span class="icon">&#128682;</span> Cerrar Sesión
+      </a>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    
+    <header class="main-header">
+      <button id="menu-toggle" class="hamburger-button">&#9776;</button>
+      <h1>Registrar Nuevo Empeño</h1>
+      <div class="user-info">
+        <span>Bienvenido</span>
+      </div>
+    </header>
+
+    <main class="content">
+      
+      <div class="form-container">
+        <form id="empeno-form">
+          
+          <h3>Datos del Cliente</h3>
+          <div class="form-grid">
+            <div class="input-group">
+              <label class="required" for="cliente-nombre">Nombre(s)</label>
+              <input type="text" id="cliente-nombre" name="cliente-nombre" required>
+            </div>
+            <div class="input-group">
+              <label class="required" for="cliente-apellidos">Apellidos</label>
+              <input type="text" id="cliente-apellidos" name="cliente-apellidos" required>
+            </div>
+            <div class="input-group">
+              <label class="required" for="cliente-telefono">Teléfono</label>
+              <input type="text" id="cliente-telefono" name="cliente-telefono">
+            </div>
+            <div class="input-group">
+              <label class="required"  for="cliente-ine">ID / INE</label>
+              <input type="text" id="cliente-ine" name="cliente-ine">
+            </div>
+            <div  class="input-group full-width">
+              <label class="required" for="cliente-direccion">Dirección</label>
+              <input type="text" id="cliente-direccion" name="cliente-direccion">
+            </div>
+          </div>
+
+          <h3>Datos del Artículo</h3>
+          <div class="form-grid">
+            <div class="input-group">
+              <label class="required" for="articulo-categoria">Categoría</label>
+              <select id="articulo-categoria" name="articulo-categoria">
+                <option value="">Seleccione una...</option>
+                <option value="joyeria">Joyería (Oro, Plata)</option>
+                <option value="electronicos">Aparatos Electrónicos</option>
+                <option value="vehiculos">Vehículos</option>
+                <option value="electrodomesticos">Electrodomésticos</option>
+                <option value="terrenos">Herramientas</option>
+                <option value="terrenos">Tanques (gas,oxigeno,dioxido)</option>
+                <option value="otros">Otros</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label class="required" for="articulo-marca">Nombre del articulo/ Marca / Modelo</label>
+              <input type="text" id="articulo-marca" name="articulo-marca">
+            </div>
+            <div class="input-group full-width">
+              <label class="required" for="articulo-descripcion">Descripción detallada</label>
+              <textarea id="articulo-descripcion" name="articulo-descripcion" rows="3"></textarea>
+            </div>
+            <div class="input-group">
+              <label  for="articulo-serie">Núm. de Serie o peso (si aplica)</label>
+              <input type="text" id="articulo-serie" name="articulo-serie">
+            </div>
+            <div class="input-group">
+              <label class="required" for="articulo-observaciones">Observaciones (ej. rayones, sin caja)</label>
+              <input type="text" id="articulo-observaciones" name="articulo-observaciones">
+            </div>
+          </div>
+
+          <h3>Detalles del Préstamo</h3>
+          <div class="form-grid cols-3">
+            <div class="input-group">
+              <label class="required" for="prestamo-valuo">Valor de Valúo ($)</label>
+              <input type="number" id="articulo-avaluo" name="prestamo-valuo" step="0.01" min="0" inputmode="decimal" pattern="^\\d+(\\.\\d{1,2})?$" required>
+            </div>
+            <div class="input-group">
+              <label class="required" for="prestamo-monto">Monto del Préstamo ($)</label>
+              <input type="number" id="prestamo-monto" name="prestamo-monto" step="0.01" min="0" inputmode="decimal" pattern="^\\d+(\\.\\d{1,2})?$" required>
+            </div>
+            <div class="input-group">
+              <label class="required" for="prestamo-interes">Interés Mensual (%)</label>
+              <input type="number" id="prestamo-interes" name="prestamo-interes" value="10" min="0" step="0.01" inputmode="decimal" pattern="^\\d+(\\.\\d{1,2})?$" required>
+            </div>
+            
+            <div class="input-group">
+              <label class="required" for="fecha-empeno">Fecha de Empeño</label>
+              <input type="date" id="fecha-empeno" name="fecha-empeno" required>
+            </div>
+            <div class="input-group">
+              <label class="required" for="fecha-refrendo">Fecha de Refrendo / Vencimiento</label>
+              <input type="date" id="fecha-refrendo" name="fecha-refrendo" readonly>
+            </div>
+            <div class="input-group">
+              <label class="required" for="monto-refrendo">Monto de Refrendo (Interés) ($)</label>
+              <input type="number" id="monto-refrendo" name="monto-refrendo" step="0.01" readonly>
+            </div>
+
+            <div class="input-group">
+              <label class="required" for="total-desempeno">Total de Desempeño ($)</label>
+              <input type="number" id="total-desempeno" name="total-desempeno" step="0.01" readonly>
+            </div>
+            </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Guardar Empeño</button>
+          </div>
+
+        </form>
+      </div>
+
+    </main>
+  </div>
+
+  <div class="overlay" id="overlay"></div>
+
+  <script>
+    // Lógica para CERRAR SESIÓN
+    const btnLogout = document.querySelector('.logout-button');
+
+    if (btnLogout) {
+        btnLogout.addEventListener('click', (e) => {
+            e.preventDefault(); // Evita que el enlace navegue solo
+            
+            // 1. Borramos la llave del navegador
+            localStorage.removeItem('token_auto_empeno');
+            
+            // 2. (Opcional) Avisamos al usuario
+            alert('Sesión cerrada correctamente');
+
+            // 3. Redirigimos al Login
+            window.location.href = '/';
+        });
+    }
+
+    // Lógica de PROTECCIÓN (Si no tienes llave, ¡fuera de aquí!)
+    const token = localStorage.getItem('token_auto_empeno');
+    if (!token) {
+        window.location.href = '/';
+    }
+
+  // 2. CÁLCULOS AUTOMÁTICOS
+  const inputMonto = document.getElementById('prestamo-monto');
+  const inputInteres = document.getElementById('prestamo-interes');
+  const inputFechaInicio = document.getElementById('fecha-empeno');
+
+  // Sanitizar inputs numéricos: asegura solo números positivos y hasta 2 decimales
+  function sanitizePositiveNumericInput(inputEl) {
+    if (!inputEl) return;
+    inputEl.addEventListener('input', () => {
+      // Reemplaza comas por punto y quita todo lo que no sea dígito o punto
+      let v = inputEl.value.replace(/,/g, '.').replace(/[^0-9.]/g, '');
+      // Si hay más de un punto, dejar sólo el primero
+      const parts = v.split('.');
+      if (parts.length > 1) {
+        v = parts.shift() + '.' + parts.join('');
+      }
+      // Limitar a dos decimales
+      if (v.indexOf('.') >= 0) {
+        const [intPart, decPart] = v.split('.');
+        v = intPart + '.' + decPart.slice(0, 2);
+      }
+      // Evitar valores negativos (el input tipo=number podría permitir '-' en algunas teclas)
+      if (v.startsWith('-')) v = v.replace('-', '');
+      inputEl.value = v;
+    });
+  }
+
+  // Aplicar sanitización a los campos relevantes
+  sanitizePositiveNumericInput(inputMonto);
+  sanitizePositiveNumericInput(inputInteres);
+  const inputAvaluo = document.getElementById('articulo-avaluo');
+  sanitizePositiveNumericInput(inputAvaluo);
+
+  function calcularTotales() {
+    const monto = parseFloat(inputMonto.value) || 0;
+    const interesPct = parseFloat(inputInteres.value) || 0;
+    
+    // Calcular interés
+    const montoInteres = monto * (interesPct / 100);
+    const total = monto + montoInteres;
+
+    // Calcular Fecha Vencimiento (30 días)
+    if (inputFechaInicio && inputFechaInicio.value) {
+      const fechaObj = new Date(inputFechaInicio.value + 'T00:00:00');
+      fechaObj.setDate(fechaObj.getDate() + 30);
+      const fechaRefrendo = document.getElementById('fecha-refrendo');
+      if(fechaRefrendo) fechaRefrendo.value = fechaObj.toISOString().split('T')[0];
+    }
+
+    // Mostrar resultados
+    const outRefrendo = document.getElementById('monto-refrendo');
+    const outTotal = document.getElementById('total-desempeno');
+    if(outRefrendo) outRefrendo.value = montoInteres.toFixed(2);
+    if(outTotal) outTotal.value = total.toFixed(2);
+  }
+
+  // Listeners para cálculos
+  if(inputMonto) inputMonto.addEventListener('input', calcularTotales);
+  if(inputInteres) inputInteres.addEventListener('input', calcularTotales);
+  if(inputFechaInicio) inputFechaInicio.addEventListener('change', calcularTotales);
+
+  // Inicializar fecha hoy
+  document.addEventListener('DOMContentLoaded', () => {
+    if(inputFechaInicio) {
+        inputFechaInicio.value = new Date().toISOString().split('T')[0];
+        calcularTotales();
+    }
+  });
+
+
+  // --- 3. LÓGICA DE VALIDACIÓN Y ENVÍO ---
+  
+  function getVal(id) {
+      const el = document.getElementById(id);
+      return el ? el.value : '';
+  }
+
+  const form = document.querySelector('form');
+  
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault(); 
+
+    // A. LISTA DE CAMPOS OBLIGATORIOS
+    // Si olvida alguno de estos, se marcará en rojo
+    const obligatorios = [
+        'cliente-nombre', 
+        'cliente-apellidos', 
+        'cliente-telefono', 
+        'articulo-marca', 
+        'articulo-descripcion', 
+        'prestamo-monto',
+        'cliente-ine'
+        
+    ];
+
+    let hayError = false;
+
+    // B. REVISIÓN CAMPO POR CAMPO
+    obligatorios.forEach(id => {
+        const input = document.getElementById(id);
+        if(input) {
+            // Si está vacío o solo tiene espacios
+            if(!input.value.trim()) {
+                input.classList.add('input-error'); // Poner rojo
+                input.classList.add('shake');       // Agitar
+                
+                // Quitar la clase de agitar después de 0.5s para poder reusarla
+                setTimeout(() => input.classList.remove('shake'), 500);
+                
+                // Quitar el rojo cuando el usuario empiece a escribir
+                input.addEventListener('input', () => input.classList.remove('input-error'), {once:true});
+                
+                hayError = true;
+            } else {
+                input.classList.remove('input-error');
+            }
+        }
+    });
+
+    if(hayError) {
+        alert("⚠️ Faltan datos obligatorios.\nPor favor llena los campos marcados en rojo.");
+        return; // ¡AQUÍ SE DETIENE SI FALTAN DATOS!
+    }
+
+    // C. SI TODO ESTÁ BIEN, ENVIAMOS
+    try {
+        const payload = {
+          cliente: {
+            nombre: getVal('cliente-nombre'),
+            apellidos: getVal('cliente-apellidos'),
+            telefono: getVal('cliente-telefono'),
+            ine: getVal('cliente-ine'),
+            direccion: getVal('cliente-direccion')
+          },
+          empeno: {
+            categoria: getVal('articulo-categoria'),
+            marca_modelo: getVal('articulo-marca'),
+            descripcion: getVal('articulo-descripcion'),
+            num_serie_peso: getVal('articulo-serie'),
+            observaciones: getVal('articulo-observaciones'),
+            valor_valuo: parseFloat(getVal('articulo-avaluo')) || 0,
+            monto_prestamo: parseFloat(getVal('prestamo-monto')) || 0,
+            interes_mensual_pct: parseFloat(getVal('prestamo-interes')) || 10,
+            fecha_empeno: getVal('fecha-empeno'),
+            fecha_vencimiento: getVal('fecha-refrendo')
+          }
+        };
+
+        const response = await fetch('/empenos/nuevo', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            // Éxito: Fondo verde o mensaje bonito
+            alert(`✅ ¡Empeño registrado con éxito!\nFolio: ${data.id}`);
+            window.location.href = 'clientes.html';
+        } else {
+            const err = await response.json();
+            alert("Error del servidor: " + (err.detail || "Datos inválidos"));
+        }
+
+    } catch (error) {
+        console.error("Error:", error);
+        alert("Error de conexión con el servidor.");
+    }
+  });
+</script>
+</body>
+</html>

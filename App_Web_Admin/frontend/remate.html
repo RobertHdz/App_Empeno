@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Remate de Empeños - Panel de Control</title>
+  <link rel="stylesheet" href="remate.css"> 
+</head>
+<body>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <img src="LOGOEMP.png" alt="Logo" class="sidebar-logo">
+      <h2>Panel de <span>Control</span></h2>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <ul>
+        <li><a href="index.html">
+          <span class="icon">&#127968;</span> Resumen
+        </a></li>
+        <li><a href="nuev_emp.html" >
+          <span class="icon">&#10133;</span> Nuevo Empeño
+        </a></li>
+        <li><a href="ref.html">
+          <span class="icon">&#128260;</span> Refrendo
+        </a></li>
+        <li><a href="desemp.html">
+          <span class="icon">&#9989;</span> Desempeño
+        </a></li>
+        <li><a href="reevaluo.html" >
+          <span class="icon">&#128220;</span> Revalúo
+        </a></li>
+        <li><a href="clientes.html">
+          <span class="icon">&#128101;</span> Clientes
+        </a></li>
+        <li><a href="history.html">
+          <span class="icon">&#128214;</span> Historial Empeños
+        </a></li>
+        <li><a href="remate.html"class="active">
+          <span class="icon">&#128739;</span> Remate Empeños
+        </a></li>
+      </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="index.html" class="logout-button">
+        <span class="icon">&#128682;</span> Cerrar Sesión
+      </a>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    
+    <header class="main-header">
+      <button id="menu-toggle" class="hamburger-button">&#9776;</button>
+      <h1>Artículos en Remate</h1>
+      <div class="user-info">
+        <span>Bienvenido</span>
+      </div>
+    </header>
+
+    <main class="content">
+      <div class="search-bar">
+        <input type="text" id="busqueda-remate" placeholder="Buscar artículo en venta...">
+        <button type="button" id="btn-buscar-remate" class="search-btn">
+          <span>&#128269;</span> Buscar
+        </button>
+      </div>
+
+      <div class="history-table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Folio</th>
+              <th>Cliente</th>
+              <th>Artículo</th>
+              <th>Precio adquirido</th> 
+              <th>Precio vendido </th>
+              <th>Fecha Ingreso</th>
+              <th>Estado</th>
+              <th>Acción</th> </tr>
+          </thead>
+          <tbody id="tabla-remates-body">
+            </tbody>
+        </table>
+      </div>
+      </div>
+
+    </main>
+  </div>
+
+  <div class="overlay" id="overlay"></div>
+  <script>
+    // Lógica para CERRAR SESIÓN
+    const btnLogout = document.querySelector('.logout-button');
+
+    if (btnLogout) {
+        btnLogout.addEventListener('click', (e) => {
+            e.preventDefault(); // Evita que el enlace navegue solo
+            
+            // 1. Borramos la llave del navegador
+            localStorage.removeItem('token_auto_empeno');
+            
+            // 2. (Opcional) Avisamos al usuario
+            alert('Sesión cerrada correctamente');
+
+            // 3. Redirigimos al Login
+            window.location.href = '/';
+        });
+    }
+
+    // Lógica de PROTECCIÓN (Si no tienes llave, ¡fuera de aquí!)
+    const token = localStorage.getItem('token_auto_empeno');
+    if (!token) {
+        window.location.href = '/';
+    }
+
+    // Formateador de moneda (reutilizable)
+    const formatoMoneda = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' });
+
+    let inventarioRemates = [];
+
+    // 1. CARGAR Y FILTRAR
+    document.addEventListener('DOMContentLoaded', async () => {
+      const tbody = document.getElementById('tabla-remates-body');
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center">Cargando inventario...</td></tr>';
+
+      try {
+        const res = await fetch('/empenos/remates', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (res.ok) {
+          const remates = await res.json();
+
+          // Ya vienen filtrados por el backend: Rematado o Vendido
+          inventarioRemates = remates || [];
+
+          renderizarTabla(inventarioRemates);
+        } else {
+          console.error('Error al cargar remates', res.status);
+          tbody.innerHTML = '<tr><td colspan="8" style="text-align:center">Error al cargar inventario</td></tr>';
+        }
+      } catch (e) {
+        console.error(e);
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center">Error de conexión</td></tr>';
+      }
+    });
+
+    // 2. DIBUJAR TABLA
+    // 2. DIBUJAR TABLA (CORREGIDO: Clase Status Estándar y Lógica de Botón Vender)
+function renderizarTabla(lista) {
+  const tbody = document.getElementById('tabla-remates-body');
+  // Limpiar de forma segura
+  while (tbody.firstChild) tbody.removeChild(tbody.firstChild);
+
+  if (!lista || lista.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center">No hay artículos en venta o vendidos.</td></tr>';
+    return;
+  }
+
+  lista.forEach(item => {
+    const tr = document.createElement('tr');
+
+    const folio = item.id;
+    const clienteTexto = typeof item.cliente === 'string' ? item.cliente : (item.cliente || '-') ;
+    const articulo = item.articulo || item.marca_modelo || '-';
+    const montoPrestamo = Number(item.monto_prestamo) || 0;
+    const precioSugerido = montoPrestamo * 1.6;
+
+    const precioAdquirido = (item.precio_venta !== null && item.precio_venta !== undefined)
+        ? Number(item.precio_venta)
+        : (item.precio_adquirido !== undefined ? item.precio_adquirido : null);
+
+    const fechaIngreso = item.fecha_empeno || item.fecha_ingreso || item.fecha_vencimiento || '-';
+
+    // Estado original del backend (puede ser 'Rematado', 'Vendido', 'Disponible', etc.)
+    const estadoOriginal = item.estado || 'Disponible';
+    
+    // 👇 AJUSTE DE TEXTO SOLICITADO: CAMBIAR 'Rematado' a 'Disponible' para la vista
+    const estadoTxt = estadoOriginal === 'Rematado' ? 'Disponible' : estadoOriginal;
+    
+    // 💡 CORRECCIÓN DE CLASE: Estandarizar el color (Rematado/Disponible = en-venta)
+    let estadoClase;
+    // Usamos el estadoOriginal para determinar la clase de color
+    if (estadoOriginal === 'Disponible' || estadoOriginal === 'Rematado') {
+        estadoClase = 'en-venta'; 
+    } else if (estadoOriginal === 'Vendido') {
+        estadoClase = 'vendido'; 
+    } else {
+        // Para cualquier otro estado no esperado, lo tratamos como 'en-venta' (Disponible)
+        estadoClase = 'en-venta'; 
+    }
+
+    const tdFolio = document.createElement('td'); tdFolio.textContent = folio;
+    const tdCliente = document.createElement('td'); tdCliente.style.fontWeight = 'bold'; tdCliente.innerHTML = escapeHtml(String(clienteTexto));
+    const tdArticulo = document.createElement('td'); tdArticulo.innerHTML = escapeHtml(String(articulo));
+    const tdPrecioSug = document.createElement('td'); tdPrecioSug.textContent = formatoMoneda.format(precioSugerido);
+    
+    const tdPrecioVen = document.createElement('td'); 
+    tdPrecioVen.style.fontWeight = '600'; 
+    
+    if (precioAdquirido !== null && estadoOriginal === 'Vendido') {
+      tdPrecioVen.className = 'price-venta';
+    }
+    tdPrecioVen.textContent = precioAdquirido !== null ? formatoMoneda.format(precioAdquirido) : '-';
+    
+    const tdFecha = document.createElement('td'); tdFecha.textContent = fechaIngreso;
+    
+    // Aplicar clase CSS estandarizada, usando el texto ajustado
+    const tdEstado = document.createElement('td'); 
+    tdEstado.innerHTML = `<span class="status status-${estadoClase}">${escapeHtml(String(estadoTxt))}</span>`;
+    
+    const tdAccion = document.createElement('td');
+
+    // 👇 LÓGICA DEL BOTÓN
+    // El botón solo debe aparecer si el artículo no ha sido vendido.
+    if (estadoOriginal !== 'Vendido') {
+      const btn = document.createElement('button');
+      btn.className = 'btn-vender';
+      btn.textContent = '💲 Vender';
+      // Asignar el evento al botón
+      btn.addEventListener('click', () => venderArticulo(item.id, articulo, precioSugerido));
+      tdAccion.appendChild(btn);
+    } else {
+      // Si ya está vendido, mostramos una etiqueta de estado (texto) con estilo
+      const soldTag = document.createElement('span');
+      soldTag.className = 'sold-label';
+      soldTag.textContent = 'Artículo Vendido';
+      tdAccion.appendChild(soldTag);
+    }
+    // 👆 FIN DE LA LÓGICA DEL BOTÓN
+
+    tr.appendChild(tdFolio);
+    tr.appendChild(tdCliente);
+    tr.appendChild(tdArticulo);
+    tr.appendChild(tdPrecioSug);
+    tr.appendChild(tdPrecioVen);
+    tr.appendChild(tdFecha);
+    tr.appendChild(tdEstado);
+    tr.appendChild(tdAccion);
+
+    tbody.appendChild(tr);
+  });
+}
+
+    // 3. BUSCADOR
+    const inputBus = document.getElementById('busqueda-remate');
+    inputBus.addEventListener('input', (e) => {
+      const texto = e.target.value.toLowerCase();
+      const filtrados = inventarioRemates.filter(item => {
+        const clienteNombre = item.cliente ? `${item.cliente.nombre || ''} ${item.cliente.apellidos || ''}`.toLowerCase() : '';
+        const marca = (item.marca_modelo || '').toLowerCase();
+        const folio = item.id ? item.id.toString() : '';
+        return clienteNombre.includes(texto) || marca.includes(texto) || folio.includes(texto);
+      });
+      renderizarTabla(filtrados);
+    });
+
+    // 4. FUNCIÓN VENDER
+    window.venderArticulo = async function(id, nombre, precioSugerido) {
+      const precioRealStr = prompt(`Vender "${nombre}".\nPrecio Sugerido: $${precioSugerido}\n\nIngresa el precio final de venta:`, precioSugerido);
+      if (precioRealStr === null) return; // Cancelado
+
+      const precioReal = parseFloat(precioRealStr);
+      if (isNaN(precioReal)) { alert('Precio inválido'); return; }
+
+      const confirmar = confirm(`¿Confirma vender "${nombre}" por $${precioReal.toFixed(2)}?`);
+      if (!confirmar) return;
+
+      try {
+        const res = await fetch(`/empenos/${id}/venta`, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}` 
+          },
+          body: JSON.stringify({ precio_venta: precioReal })
+        });
+
+        if (res.ok) {
+          alert("✅ ¡Artículo vendido y dinero ingresado a caja!");
+          window.location.reload();
+        } else {
+          alert("Error al registrar venta");
+        }
+      } catch (e) {
+        alert("Error de conexión");
+      }
+    }
+    // Utility: escapar texto para evitar inyección en innerHTML (muy básico)
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+    }
+  </script>
+
+  <style>
+  /* 1. Estado Disponible (Mapeado a .status-en-venta en JS) -> AHORA VERDE */
+  .status-en-venta { 
+    background-color: #28a745; /* VERDE (Color de Vigente/Éxito) */ 
+    color: white; 
+    padding: 4px 8px; 
+    border-radius: 4px; 
+    font-weight: bold; 
+  }
+  
+  /* 2. Estado Vendido -> AHORA GRIS */
+  .status-vendido { 
+    background-color: #6c757d; /* GRIS PLOMO (Color neutral para algo finalizado) */ 
+    color: white; 
+    padding: 4px 8px; 
+    border-radius: 4px; 
+    font-weight: bold; 
+  }
+  
+  .btn-vender {
+    background-color: #f5b301; /* color primario (amarillo) */
+    color: #113b64; /* texto azul oscuro */
+    border: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .btn-vender:hover { background-color: #113b64; color: #ffffff; }
+  .sold-label {
+    display: inline-block;
+    background: #f1f1f1;
+    color: #6c757d;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.95em;
+  }
+</style>
+</body>
+</html>

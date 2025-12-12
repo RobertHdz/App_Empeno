@@ -1,0 +1,894 @@
+/* =======================================================
+   VARIABLES DE MARCA Y ESTRUCTURA
+========================================================== */
+:root {
+  --color-azul-oscuro: #113b64;
+  --color-azul-medio: #2a5a8a;
+  --color-amarillo: #f5b301;
+  --color-fondo: #f2f2f2;
+  --color-texto-principal: #333;
+  --font-principal: Georgia, 'Times New Roman', Times, serif;
+  --font-secundaria: Arial, Helvetica, sans-serif;
+  --sidebar-width: 260px;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-secundaria);
+  background-color: var(--color-fondo);
+  display: flex;
+}
+
+/* =======================================================
+   1. BARRA LATERAL (SIDEBAR)
+========================================================== */
+.sidebar {
+  width: var(--sidebar-width);
+  min-height: 100vh;
+  background-color: var(--color-azul-oscuro);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  position: fixed; /* Fijo en la pantalla */
+  left: 0;
+  top: 0;
+  transition: transform 0.3s ease-out;
+  z-index: 1000;
+}
+
+.sidebar-header {
+  padding: 20px;
+  text-align: center;
+  border-bottom: 1px solid var(--color-azul-medio);
+}
+
+.sidebar-logo {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid var(--color-amarillo);
+  margin-bottom: 10px;
+}
+
+.sidebar-header h2 {
+  margin: 0;
+  font-family: var(--font-principal);
+  font-size: 22px;
+}
+
+.sidebar-header h2 span {
+  color: var(--color-amarillo);
+}
+
+.sidebar-nav {
+  flex-grow: 1; /* Empuja el footer hacia abajo */
+  padding-top: 15px;
+}
+
+.sidebar-nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-nav a {
+  display: block;
+  padding: 16px 25px;
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 15px;
+  border-left: 4px solid transparent;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.sidebar-nav a .icon {
+  margin-right: 12px;
+  font-size: 18px;
+}
+
+.sidebar-nav a:hover {
+  background-color: var(--color-azul-medio);
+}
+
+/* Estilo para el enlace de la página activa */
+.sidebar-nav a.active {
+  background-color: var(--color-azul-medio);
+  border-left-color: var(--color-amarillo);
+}
+
+.sidebar-footer {
+  padding: 20px;
+  border-top: 1px solid var(--color-azul-medio);
+}
+
+.logout-button {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background-color: var(--color-amarillo);
+  color: var(--color-azul-oscuro);
+  text-align: center;
+  text-decoration: none;
+  font-weight: bold;
+  border-radius: 5px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.logout-button .icon {
+  margin-right: 8px;
+}
+
+.logout-button:hover {
+  background-color: white;
+}
+
+/* =======================================================
+   2. CONTENIDO PRINCIPAL
+========================================================== */
+.main-content {
+  flex-grow: 1;
+  /* Deja espacio para la barra lateral fija */
+  margin-left: var(--sidebar-width);
+}
+
+/* Encabezado superior */
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 30px;
+  background-color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  position: sticky; /* Se queda fijo al hacer scroll */
+  top: 0;
+  z-index: 900;
+}
+
+.main-header h1 {
+  margin: 0;
+  color: var(--color-azul-oscuro);
+  font-family: var(--font-principal);
+  font-size: 26px;
+}
+
+.user-info {
+  font-weight: bold;
+  color: var(--color-texto-principal);
+}
+
+.user-info span {
+  font-family: var(--font-secundaria);
+}
+
+/* Botón de Hamburguesa (oculto en escritorio) */
+.hamburger-button {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: var(--color-azul-oscuro);
+  cursor: pointer;
+}
+
+/* Área de contenido principal */
+.content {
+  padding: 30px;
+}
+
+/* Tarjetas de estadísticas */
+.stats-cards {
+  display: grid;
+  /* Crea columnas responsivas */
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background-color: white;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  border-left: 5px solid var(--color-azul-oscuro);
+}
+
+.card h3 {
+  margin-top: 0;
+  font-family: var(--font-secundaria);
+  font-weight: bold;
+  font-size: 16px;
+  color: var(--color-texto-principal);
+}
+
+.card .stat-number {
+  font-size: 2.5rem;
+  font-weight: bold;
+  font-family: var(--font-principal);
+  color: var(--color-amarillo);
+  margin-top: 10px;
+  display: block;
+}
+
+/* Placeholder para el contenido (formularios, tablas, etc.) */
+.content-placeholder {
+  margin-top: 30px;
+  background-color: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.content-placeholder h2 {
+  margin-top: 0;
+  color: var(--color-azul-oscuro);
+  font-family: var(--font-principal);
+}
+
+/* Estilo de tabla de ejemplo */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  font-family: var(--font-secundaria);
+}
+table th, table td {
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+table th {
+  background-color: #f4f4f4;
+  color: var(--color-azul-oscuro);
+  font-weight: bold;
+}
+table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+/* =======================================================
+   3. DISEÑO MÓVIL (RESPONSIVE)
+========================================================== */
+.overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+@media (max-width: 900px) {
+  .sidebar {
+    /* Ocultamos la barra lateral fuera de la pantalla */
+    transform: translateX(calc(-1 * var(--sidebar-width)));
+  }
+
+  /* Clase que se añadirá con JS para mostrar el menú */
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .main-content {
+    /* El contenido principal ocupa todo */
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .hamburger-button {
+    display: block; /* Mostramos el botón */
+  }
+
+  .main-header {
+    padding: 15px 20px;
+  }
+  
+  .main-header h1 {
+    font-size: 20px;
+  }
+
+  .user-info {
+    display: none; /* Ocultamos el "Bienvenido" en móvil */
+  }
+
+  .content {
+    padding: 20px;
+  }
+  
+  .stats-cards {
+    grid-template-columns: 1fr; /* Una sola columna en móvil */
+  }
+
+  /* Muestra el fondo oscuro cuando el menú está abierto */
+  .overlay.open {
+    display: block;
+  }
+}
+
+/* =======================================================
+   4. ESTILOS DE FORMULARIO (NUEVO EMPEÑO)
+========================================================== */
+
+/* El contenedor blanco del formulario */
+.form-container {
+  background-color: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Títulos de sección (Cliente, Artículo, Préstamo) */
+.form-container h3 {
+  color: var(--color-azul-oscuro);
+  font-family: var(--font-principal);
+  font-size: 20px;
+  margin-top: 0;
+  margin-bottom: 20px;
+  border-bottom: 2px solid var(--color-fondo);
+  padding-bottom: 10px;
+}
+
+/* Espacio entre secciones del formulario */
+.form-container h3:not(:first-child) {
+  margin-top: 30px;
+}
+
+/* Cuadrícula para alinear los campos del formulario */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 2 columnas por defecto */
+  gap: 20px 25px; /* 20px de espacio vertical, 25px horizontal */
+}
+
+/* Clase especial para la cuadrícula de 3 columnas (Préstamo) */
+.form-grid.cols-3 {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+/* Grupo de Label + Input */
+.input-group {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Clase especial para que un campo ocupe todo el ancho */
+.input-group.full-width {
+  grid-column: 1 / -1; /* Ocupa desde la primera línea hasta la última */
+}
+
+.input-group label {
+  font-weight: bold;
+  color: var(--color-texto-principal);
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+/* ¡NUEVO ESTILO DE INPUTS "LLAMATIVO"! */
+.input-group input[type="text"],
+.input-group input[type="number"],
+.input-group input[type="date"],
+.input-group select,
+.input-group textarea {
+  width: 100%;
+  padding: 10px 5px; /* Menos padding horizontal, más vertical */
+  border: none; /* Quitamos todos los bordes */
+  border-bottom: 2px solid #ccc; /* Solo dejamos una línea inferior gris */
+  border-radius: 0; /* Quitamos el redondeo */
+  box-sizing: border-box; 
+  font-family: var(--font-secundaria);
+  font-size: 15px;
+  background-color: transparent; /* Sin fondo */
+  transition: border-color 0.3s ease;
+}
+
+.input-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* ¡NUEVO ESTILO DE FOCUS "LLAMATIVO"! */
+.input-group input[type="text"]:focus,
+.input-group input[type="number"]:focus,
+.input-group input[type="date"]:focus,
+.input-group select:focus,
+.input-group textarea:focus {
+  border-bottom-color: var(--color-amarillo); /* La línea se vuelve amarilla */
+  box-shadow: none; /* Quitamos cualquier sombra */
+  outline: none;
+}
+
+/* Contenedor de los botones de acción */
+.form-actions {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 2px solid var(--color-fondo);
+  display: flex;
+  justify-content: flex-end; /* Alinea botones a la derecha */
+  gap: 15px;
+}
+
+/* Estilo base de los botones */
+.btn {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: bold;
+  font-family: var(--font-principal);
+  transition: all 0.3s ease;
+}
+
+/* Botón primario (Guardar) */
+.btn-primary {
+  background-color: var(--color-amarillo);
+  color: var(--color-azul-oscuro);
+}
+.btn-primary:hover {
+  background-color: var(--color-azul-oscuro);
+  color: white;
+}
+
+/* Botón secundario (Cancelar) */
+.btn-secondary {
+  background-color: #ccc;
+  color: #333;
+}
+.btn-secondary:hover {
+  background-color: #b3b3b3;
+}
+
+/* =======================================================
+   5. AJUSTES RESPONSIVE PARA FORMULARIO (¡ACTUALIZADO!)
+========================================================== */
+
+@media (max-width: 768px) {
+  /* Apilamos todo en una columna en móvil */
+  .form-grid,
+  .form-grid.cols-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .form-container {
+    padding: 20px;
+  }
+
+  /* Hacemos que los botones ocupen 100% en móvil */
+  .form-actions {
+    flex-direction: column-reverse; /* El botón principal queda abajo */
+  }
+  .btn {
+    width: 100%;
+  }
+}
+/* =======================================================
+   6. ESTILOS ADICIONALES PARA FORMULARIOS
+========================================================== */
+
+/* ¡NUEVO ESTILO "LLAMATIVO" PARA SOLO LECTURA! */
+.input-group input:read-only,
+.input-group textarea:read-only {
+  background-color: transparent; /* Sin fondo */
+  border: none; /* Sin bordes */
+  padding: 10px 0; /* Alinear con los otros inputs */
+  font-family: var(--font-principal); /* Fuente principal */
+  font-weight: bold;
+  font-size: 16px;
+  color: var(--color-azul-medio); /* Color azul */
+  cursor: default; /* Cursor de texto normal */
+  box-shadow: none;
+}
+
+
+/* =======================================================
+   7. ESTILOS DE PÁGINA DE REFRENDO (ACTUALIZADO)
+========================================================== */
+
+/* Contenedor principal de la búsqueda (la tarjeta blanca) */
+.search-section {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  margin-bottom: 30px;
+  overflow: hidden; /* ¡CLAVE! Para que el h3 curvo funcione */
+}
+
+/* Título de sección (BARRA AZUL) */
+.search-section h3,
+#refrendo-details > h3 { /* El primer h3 dentro de #refrendo-details */
+  color: white;
+  background-color: var(--color-azul-oscuro); /* Barra azul */
+  font-family: var(--font-principal);
+  font-size: 20px;
+  margin: 0; /* Sin margen */
+  padding: 15px 25px; /* Espaciado interno */
+  display: flex; /* Para alinear el icono */
+  align-items: center;
+}
+
+.search-section h3 .icon,
+#refrendo-details > h3 .icon {
+  margin-right: 10px;
+  font-size: 1.1em;
+  color: var(--color-amarillo); /* Icono amarillo */
+}
+
+/* Estilo para el folio en el título */
+#refrendo-details > h3 .folio {
+  font-family: var(--font-secundaria);
+  font-size: 0.9em;
+  color: white;
+  opacity: 0.8;
+  font-weight: normal;
+  margin-left: auto; /* Empuja el folio a la derecha */
+}
+
+/* Contenido del formulario de búsqueda (con padding) */
+.search-form-content {
+  padding: 25px; /* Añadimos el padding aquí, no en el contenedor */
+}
+
+/* Formulario de búsqueda horizontal */
+.search-form {
+  display: flex;
+  align-items: flex-end; 
+  gap: 20px;
+}
+
+.search-form .input-group {
+  flex: 1; 
+  margin-bottom: 0; /* Quitamos el margen por defecto */
+}
+
+/* NOTA: Los estilos para el input de búsqueda ahora
+  se heredan automáticamente de la Sección 4.
+*/
+
+/* Botón de búsqueda (¡AMARILLO POR DEFECTO!) */
+.search-form .btn-primary {
+  background-color: var(--color-amarillo);
+  color: var(--color-azul-oscuro);
+  width: 130px; /* Ancho fijo */
+  padding: 12px 15px;
+  font-size: 16px;
+}
+
+.search-form .btn-primary .icon {
+  margin-right: 5px;
+}
+
+.search-form .btn-primary:hover {
+  background-color: var(--color-azul-oscuro); /* Invertimos al pasar */
+  color: white;
+}
+
+/* Contenedor de detalles del refrendo (tarjeta blanca) */
+#refrendo-details {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  overflow: hidden; /* ¡CLAVE! */
+  /* display: none; */ /* Descomentar para ocultar por defecto */
+}
+
+/* Contenido de los detalles (con padding) */
+.refrendo-details-content {
+  padding: 25px;
+}
+
+/* Título de subsección (¡BARRA AMARILLA!) */
+.subsection-title {
+  color: var(--color-azul-oscuro);
+  background-color: #fffaf0; /* Un amarillo muy pálido */
+  border-top: 2px solid #fdecc6; /* Borde amarillo claro */
+  border-bottom: 2px solid #fdecc6; /* Borde amarillo claro */
+  font-family: var(--font-principal);
+  font-size: 18px;
+  margin: 20px -25px; /* Se expande al ancho del padding del contenedor */
+  padding: 12px 25px;
+  display: flex;
+  align-items: center;
+}
+
+.subsection-title .icon {
+  margin-right: 10px;
+  color: var(--color-amarillo);
+  font-size: 1.1em;
+}
+
+/* Resumen de pago (sin cambios) */
+.payment-summary {
+  border: 2px solid var(--color-fondo);
+  border-radius: 8px;
+  padding: 20px;
+}
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px dashed #ccc;
+  font-size: 16px;
+  font-weight: bold;
+}
+.summary-item:last-child { border-bottom: none; }
+.summary-item-details {
+  text-align: right;
+  font-size: 13px;
+  color: #555;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed #ccc;
+  margin-top: -10px;
+}
+.summary-item.info { color: var(--color-azul-medio); }
+.summary-item.penalty { color: #D8000C; }
+.summary-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 2px solid var(--color-azul-oscuro);
+  font-size: 22px;
+  font-family: var(--font-principal);
+  color: var(--color-azul-oscuro);
+}
+.summary-total span:last-child {
+  color: var(--color-amarillo);
+  -webkit-text-stroke: 1px var(--color-azul-oscuro);
+}
+
+/* =======================================================
+   8. AJUSTES RESPONSIVE PARA REFRENDO (ACTUALIZADO)
+========================================================== */
+
+@media (max-width: 768px) {
+  /* Apilamos el formulario de búsqueda en móvil */
+  .search-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .search-form .btn {
+    width: 100%;
+  }
+
+  /* Ajustamos el resumen de pago en móvil */
+  .payment-summary {
+    padding: 15px;
+  }
+  .summary-item {
+    font-size: 14px;
+    padding: 10px 0;
+  }
+  .summary-total {
+    font-size: 18px;
+  }
+
+  /* Ajustes para los contenedores en móvil */
+  .search-section,
+  #refrendo-details {
+    padding: 0; /* Quitamos padding del contenedor */
+  }
+  
+  .search-form-content,
+  .refrendo-details-content {
+    padding: 20px; /* Añadimos padding al contenido interno */
+  }
+  
+  .search-section h3,
+  #refrendo-details > h3 {
+    font-size: 18px;
+    padding: 12px 20px;
+  }
+  
+  #refrendo-details > h3 .folio {
+      font-size: 0.8em;
+      margin-left: 10px;
+      text-align: right; /* Asegura alineación en móvil */
+  }
+
+  .subsection-title {
+    font-size: 16px;
+    margin: 20px -20px; /* Ajusta al nuevo padding */
+    padding: 10px 20px;
+  }
+}
+
+/* =======================================================
+   9. ESTILOS PARA PÁGINA DE CLIENTES
+========================================================== */
+
+/*
+  Hacemos que las reglas de la tarjeta de detalles
+  se apliquen también a la página de clientes
+*/
+#refrendo-details > h3,
+#desempeno-details > h3,
+#client-details > h3 {
+  color: white;
+  background-color: var(--color-azul-oscuro);
+  font-family: var(--font-principal);
+  font-size: 20px;
+  margin: 0;
+  padding: 15px 25px;
+  display: flex;
+  align-items: center;
+}
+
+#refrendo-details > h3 .icon,
+#desempeno-details > h3 .icon,
+#client-details > h3 .icon {
+  margin-right: 10px;
+  font-size: 1.1em;
+  color: var(--color-amarillo);
+}
+
+#refrendo-details > h3 .folio,
+#desempeno-details > h3 .folio,
+#client-details > h3 .folio {
+  font-family: var(--font-secundaria);
+  font-size: 0.9em;
+  color: white;
+  opacity: 0.8;
+  font-weight: normal;
+  margin-left: auto;
+}
+
+#refrendo-details,
+#desempeno-details,
+#client-details {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  /* display: none; */ /* Ocultar por defecto */
+}
+
+.refrendo-details-content,
+.desempeno-details-content,
+.client-details-content {
+  padding: 25px;
+}
+
+/* ==== REJILLA DE ESTADÍSTICAS MODIFICADA ==== */
+.client-stats-grid {
+  display: grid;
+  /* CAMBIADO: 4 columnas en escritorio */
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 20px;
+}
+/* ======================================== */
+
+
+/* Hacemos las tarjetas de estadísticas más pequeñas */
+.client-stats-grid .card {
+  padding: 20px;
+  border-left-width: 4px;
+}
+
+.client-stats-grid .card h3 {
+  font-size: 14px;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.client-stats-grid .card .stat-number {
+  font-size: 2.2rem;
+  margin-top: 5px;
+}
+
+/* Estilos para la tabla de historial */
+.history-table-container {
+  overflow-x: auto; /* Permite scroll horizontal en móvil */
+  -webkit-overflow-scrolling: touch;
+}
+
+.history-table-container table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-family: var(--font-secundaria);
+  /* Ancho mínimo para forzar el scroll si es necesario */
+  min-width: 700px; 
+}
+
+.history-table-container th, 
+.history-table-container td {
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  text-align: left;
+  font-size: 14px;
+}
+
+.history-table-container th {
+  background-color: #f4f4f4;
+  color: var(--color-azul-oscuro);
+  font-weight: bold;
+}
+
+.history-table-container tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+/* Estilos para las etiquetas de ESTADO */
+.status {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+  color: white;
+  display: inline-block;
+  text-align: center;
+}
+.status-vigente {
+  background-color: #28a745; /* Verde */
+}
+.status-desempenado {
+  background-color: var(--color-azul-medio); /* Azul */
+}
+.status-vencido {
+  background-color: #dc3545; /* Rojo */
+}
+.status-rematado {
+  background-color: #6c757d; /* Gris */
+}
+
+
+/* =======================================================
+   10. AJUSTES RESPONSIVE PARA CLIENTES
+========================================================== */
+@media (max-width: 900px) {
+  /* ==== REJILLA DE ESTADÍSTICAS MODIFICADA ==== */
+  /* CAMBIADO: 2 columnas en tablet */
+  .client-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  /* ======================================== */
+}
+
+@media (max-width: 768px) {
+  /* Añadimos los selectores de client-details */
+  #refrendo-details,
+  #desempeno-details,
+  #client-details {
+    padding: 0;
+  }
+  
+  .refrendo-details-content,
+  .desempeno-details-content,
+  .client-details-content {
+    padding: 20px;
+  }
+  
+  #refrendo-details > h3,
+  #desempeno-details > h3,
+  #client-details > h3 {
+    font-size: 18px;
+    padding: 12px 20px;
+  }
+  
+  #refrendo-details > h3 .folio,
+  #desempeno-details > h3 .folio,
+  #client-details > h3 .folio {
+      font-size: 0.8em;
+      margin-left: 10px;
+      text-align: right;
+  }
+
+  /* Ajustamos el tamaño de fuente de la tabla en móvil */
+  .history-table-container th, 
+  .history-table-container td {
+    font-size: 13px;
+    padding: 10px;
+  }
+  
+  /* Agregado: Hacemos que las stats sean 1 columna en móvil */
+  @media (max-width: 500px) {
+    .client-stats-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+}

@@ -1,11 +1,265 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Control - Auto Empeño Luna</title>
+  <link rel="stylesheet" href="index.css">
 </head>
 <body>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <img src="LOGOEMP.png" alt="Logo" class="sidebar-logo">
+      <h2>Panel de <span>Control</span></h2>
+    </div>
     
+    <nav class="sidebar-nav">
+      <ul>
+        <li><a href="index.html" class="active">
+          <span class="icon">&#127968;</span> Resumen 
+        </a></li>
+        <li><a href="nuev_emp.html">
+          <span class="icon">&#10133;</span> Nuevo Empeño
+        </a></li>
+        <li><a href="ref.html">
+          <span class="icon">&#128260;</span> Refrendo
+        </a></li>
+        <li><a href="desemp.html">
+          <span class="icon">&#9989;</span> Desempeño
+        </a></li>
+        <li><a href="reevaluo.html">
+          <span class="icon">&#128220;</span> Revalúo
+        </a></li>
+        <li><a href="clientes.html">
+          <span class="icon">&#128101;</span> Clientes
+        </a></li>
+        <li><a href="history.html">
+          <span class="icon">&#128214;</span> Historial Empeños
+        </a></li>
+        <li><a href="remate.html">
+          <span class="icon">&#128739;</span> Remate Empeños
+        </a></li>
+      </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="index.html" class="logout-button">
+        <span class="icon">&#128682;</span> Cerrar Sesión
+      </a>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    
+    <header class="main-header">
+      <button id="menu-toggle" class="hamburger-button">&#9776;</button>
+      <h1>Historial de ultimas acciones</h1>
+      <div class="user-info">
+        <span>Bienvenido</span>
+      </div>
+    </header>
+
+    <main class="content">
+      
+      <section class="stats-cards">
+        <div class="card">
+          <h3>Total de Empeños</h3>
+          <p class="stat-number" id="stat-total">Cargando...</p>
+        </div>
+        <div class="card">
+          <h3>Total de Empeños Activos</h3>
+          <p class="stat-number" id="stat-activos">Cargando...</p>
+        </div>
+        <div class="card">
+          <h3>Articulos desempeñados </h3>
+          <p class="stat-number" id="stat-desempenados">Cargando...</p>
+        </div>
+        <div class="card">
+          <h3>Artículos en Remate</h3>
+          <p class="stat-number" id="stat-perdidos">Cargando...</p>
+        </div>
+      </section>
+
+      <section class="content-placeholder">
+        <h2>Acciones Rápidas</h2>
+        <p>Clientes recientes.</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Cliente</th>
+              <th>Acción</th>
+              <th>Artículo</th>
+              <th>Monto</th>
+              <th>Fecha</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-acciones-body">
+            </tbody>
+        </table>
+      </section>
+
+    </main>
+  </div>
+
+  <div class="overlay" id="overlay"></div>
+
+  <script>
+    // Lógica para CERRAR SESIÓN
+    const btnLogout = document.querySelector('.logout-button');
+
+    if (btnLogout) {
+        btnLogout.addEventListener('click', (e) => {
+            e.preventDefault(); // Evita que el enlace navegue solo
+            
+            // 1. Borramos la llave del navegador
+            localStorage.removeItem('token_auto_empeno');
+            
+            // 2. (Opcional) Avisamos al usuario
+            alert('Sesión cerrada correctamente');
+
+            // 3. Redirigimos al Login
+            window.location.href = '/';
+        });
+    }
+
+    // Lógica de PROTECCIÓN (Si no tienes llave, ¡fuera de aquí!)
+    const token = localStorage.getItem('token_auto_empeno');
+    if (!token) {
+        window.location.href = '/';
+    }
+    // Función para dar formato de dinero ($1,500.00)
+    const formatoMoneda = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' });
+
+    async function cargarDashboard() {
+        try {
+            // ... dentro de cargarDashboard ...
+
+            // 2. Cargar Tabla de Acciones Rápidas esta ya funciona no le muevas nada
+            const resTabla = await fetch('/dashboard/tabla', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (resTabla.ok) {
+                const filas = await resTabla.json();
+                const tbody = document.getElementById('tabla-acciones-body');
+                tbody.innerHTML = ''; 
+
+                // Log para depuración: ver qué trae el backend
+                  console.debug('Dashboard - filas recibidas:', filas);
+
+                // Limpiar tbody de forma segura
+                while (tbody.firstChild) tbody.removeChild(tbody.firstChild);
+
+                if (!filas || filas.length === 0) {
+                  const trEmpty = document.createElement('tr');
+                  const tdEmpty = document.createElement('td');
+                  tdEmpty.colSpan = 5;
+                  tdEmpty.style.textAlign = 'center';
+                  tdEmpty.textContent = 'Sin movimientos recientes';
+                  trEmpty.appendChild(tdEmpty);
+                  tbody.appendChild(trEmpty);
+                } else {
+                  filas.forEach(fila => {
+                  const tr = document.createElement('tr');
+
+                    // 1. Normalización ROBUSTA:
+                    // a) Pasar a minúsculas. b) Eliminar diacríticos (acentos). c) Quitar espacios.
+                    const accionNorm = (fila.accion || '').toString()
+                        .toLowerCase()
+                        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                        .replace(/\s/g, ''); // Quita espacios
+
+                    // 🎯 LÓGICA DE ASIGNACIÓN (Asegurando la coincidencia con las clases CSS):
+                    let badgeClass = 'status-nuevo-empeno'; // Por defecto (Nuevo Empeño)
+
+                    // Mapear las acciones esperadas a clases (buscamos fragmentos comunes)
+                    if (accionNorm.includes('ventaremate') || accionNorm.includes('venta')) {
+                      badgeClass = 'status-venta-remate';
+                    } else if (accionNorm.includes('desempeno') || accionNorm.includes('desempenad') || accionNorm.includes('desemp')) {
+                      badgeClass = 'status-desempeno-accion';
+                    } else if (accionNorm.includes('refrendo')) {
+                      badgeClass = 'status-refrendo-accion';
+                    } else if (accionNorm.includes('reevaluo')) {
+                      badgeClass = 'status-reevaluo-accion';
+                    } else if (accionNorm.includes('nuevo') || accionNorm.includes('empeno')) {
+                      badgeClass = 'status-nuevo-empeno';
+                    }
+                    // FIN DE LA LÓGICA
+
+                    // Formato de moneda (se omite para brevedad)
+                    const montoVal = Number(fila.monto) || 0;
+                    const signo = montoVal < 0 ? '-' : '+';
+                    const montoFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(Math.abs(montoVal));
+
+                    // Construir celdas de forma segura
+                    const tdCliente = document.createElement('td');
+                    const spanCliente = document.createElement('span');
+                    spanCliente.style.fontWeight = 'bold'; spanCliente.style.color = '#555';
+                    spanCliente.textContent = fila.cliente || '';
+                    tdCliente.appendChild(spanCliente);
+
+                    const tdAccion = document.createElement('td');
+                    const spanAcc = document.createElement('span');
+                    
+                    // 💥 LÍNEA CRÍTICA: La clase 'status' DEBE estar aquí para el relleno.
+                    spanAcc.className = 'status ' + badgeClass; 
+                    
+                    spanAcc.textContent = fila.accion || '';
+                    tdAccion.appendChild(spanAcc);
+
+                    const tdArticulo = document.createElement('td'); tdArticulo.textContent = fila.articulo || '';
+                    const tdMonto = document.createElement('td'); tdMonto.style.fontWeight = 'bold'; tdMonto.textContent = `${signo} ${montoFmt}`;
+                    const tdFecha = document.createElement('td'); tdFecha.textContent = fila.fecha || '';
+
+                    tr.appendChild(tdCliente);
+                    tr.appendChild(tdAccion);
+                    tr.appendChild(tdArticulo);
+                    tr.appendChild(tdMonto);
+                    tr.appendChild(tdFecha);
+
+                    tbody.appendChild(tr);
+                });}
+            } else {
+                console.error('Error al cargar tabla de acciones rápidas');
+            }
+  
+            // 1. Cargar estadísticas del dashboard
+            // Pedimos TODOS los empeños existentes
+            // (Usamos el endpoint básico que ya existe, no el de KPIs)
+            const resTodos = await fetch('/empenos/todos', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (resTodos.ok) {
+                const todos = await resTodos.json();
+                
+                // --- A. CÁLCULOS ---
+
+                // Total de Empeños
+                document.getElementById('stat-total').innerText = todos.length;
+
+                // 1. Empeños Activos (Vigentes + Vencidos)
+                const activos = todos.filter(e => e.estado === 'Vigente' || e.estado === 'Vencido');
+                const cantidadActivos = activos.length;
+                document.getElementById('stat-activos').innerText = cantidadActivos;
+                // 2. Artículos Desempeñados
+                const desempenados = todos.filter(item => item.estado === 'Desempeñado').length;
+                document.getElementById('stat-desempenados').innerText = desempenados;
+
+                // 4. En remate
+                const perdidos = todos.filter(item => 
+                    item.estado === 'Rematado' || item.estado === 'Vendido'
+                ).length;
+                document.getElementById('stat-perdidos').innerText = perdidos;
+            }
+
+        } catch (error) {
+            console.error('Error cargando dashboard:', error);
+        }
+    }
+    // Ejecutar cuando cargue la página
+    document.addEventListener('DOMContentLoaded', cargarDashboard);
+  </script>
 </body>
 </html>

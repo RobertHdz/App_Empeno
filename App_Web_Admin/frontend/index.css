@@ -1,0 +1,346 @@
+/* =======================================================
+   VARIABLES DE MARCA Y ESTRUCTURA
+========================================================== */
+:root {
+  --color-azul-oscuro: #113b64;
+  --color-azul-medio: #2a5a8a;
+  --color-amarillo: #f5b301;
+  --color-fondo: #f2f2f2;
+  --color-texto-principal: #333;
+  --font-principal: Georgia, 'Times New Roman', Times, serif;
+  --font-secundaria: Arial, Helvetica, sans-serif;
+  --sidebar-width: 260px;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-secundaria);
+  background-color: var(--color-fondo);
+  display: flex;
+}
+
+/* =======================================================
+   1. BARRA LATERAL (SIDEBAR)
+========================================================== */
+.sidebar {
+  width: var(--sidebar-width);
+  min-height: 100vh;
+  background-color: var(--color-azul-oscuro);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  position: fixed; /* Fijo en la pantalla */
+  left: 0;
+  top: 0;
+  transition: transform 0.3s ease-out;
+  z-index: 1000;
+}
+
+.sidebar-header {
+  padding: 20px;
+  text-align: center;
+  border-bottom: 1px solid var(--color-azul-medio);
+}
+
+.sidebar-logo {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid var(--color-amarillo);
+  margin-bottom: 10px;
+}
+
+.sidebar-header h2 {
+  margin: 0;
+  font-family: var(--font-principal);
+  font-size: 22px;
+}
+
+.sidebar-header h2 span {
+  color: var(--color-amarillo);
+}
+
+.sidebar-nav {
+  flex-grow: 1; /* Empuja el footer hacia abajo */
+  padding-top: 15px;
+}
+
+.sidebar-nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-nav a {
+  display: block;
+  padding: 16px 25px;
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 15px;
+  border-left: 4px solid transparent;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.sidebar-nav a .icon {
+  margin-right: 12px;
+  font-size: 18px;
+}
+
+.sidebar-nav a:hover {
+  background-color: var(--color-azul-medio);
+}
+
+/* Estilo para el enlace de la página activa */
+.sidebar-nav a.active {
+  background-color: var(--color-azul-medio);
+  border-left-color: var(--color-amarillo);
+}
+
+.sidebar-footer {
+  padding: 20px;
+  border-top: 1px solid var(--color-azul-medio);
+}
+
+.logout-button {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background-color: var(--color-amarillo);
+  color: var(--color-azul-oscuro);
+  text-align: center;
+  text-decoration: none;
+  font-weight: bold;
+  border-radius: 5px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.logout-button .icon {
+  margin-right: 8px;
+}
+
+.logout-button:hover {
+  background-color: white;
+}
+
+/* =======================================================
+   2. CONTENIDO PRINCIPAL
+========================================================== */
+.main-content {
+  flex-grow: 1;
+  /* Deja espacio para la barra lateral fija */
+  margin-left: var(--sidebar-width);
+}
+
+/* Encabezado superior */
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 30px;
+  background-color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  position: sticky; /* Se queda fijo al hacer scroll */
+  top: 0;
+  z-index: 900;
+}
+
+.main-header h1 {
+  margin: 0;
+  color: var(--color-azul-oscuro);
+  font-family: var(--font-principal);
+  font-size: 26px;
+}
+
+.user-info {
+  font-weight: bold;
+  color: var(--color-texto-principal);
+}
+
+.user-info span {
+  font-family: var(--font-secundaria);
+}
+
+/* Botón de Hamburguesa (oculto en escritorio) */
+.hamburger-button {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: var(--color-azul-oscuro);
+  cursor: pointer;
+}
+
+/* Área de contenido principal */
+.content {
+  padding: 30px;
+}
+
+/* Tarjetas de estadísticas */
+.stats-cards {
+  display: grid;
+  /* Crea columnas responsivas */
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background-color: white;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  border-left: 5px solid var(--color-azul-oscuro);
+}
+
+.card h3 {
+  margin-top: 0;
+  font-family: var(--font-secundaria);
+  font-weight: bold;
+  font-size: 16px;
+  color: var(--color-texto-principal);
+}
+
+.card .stat-number {
+  font-size: 2.5rem;
+  font-weight: bold;
+  font-family: var(--font-principal);
+  color: var(--color-amarillo);
+  margin-top: 10px;
+  display: block;
+}
+
+/* Placeholder para el contenido (formularios, tablas, etc.) */
+.content-placeholder {
+  margin-top: 30px;
+  background-color: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.content-placeholder h2 {
+  margin-top: 0;
+  color: var(--color-azul-oscuro);
+  font-family: var(--font-principal);
+}
+
+/* Estilo de tabla de ejemplo */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  font-family: var(--font-secundaria);
+}
+table th, table td {
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+table th {
+  background-color: #f4f4f4;
+  color: var(--color-azul-oscuro);
+  font-weight: bold;
+}
+table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+/* =======================================================
+   3. DISEÑO MÓVIL (RESPONSIVE)
+========================================================== */
+.overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+@media (max-width: 900px) {
+  .sidebar {
+    /* Ocultamos la barra lateral fuera de la pantalla */
+    transform: translateX(calc(-1 * var(--sidebar-width)));
+  }
+
+  /* Clase que se añadirá con JS para mostrar el menú */
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .main-content {
+    /* El contenido principal ocupa todo */
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .hamburger-button {
+    display: block; /* Mostramos el botón */
+  }
+
+  .main-header {
+    padding: 15px 20px;
+  }
+  
+  .main-header h1 {
+    font-size: 20px;
+  }
+
+  .user-info {
+    display: none; /* Ocultamos el "Bienvenido" en móvil */
+  }
+
+  .content {
+    padding: 20px;
+  }
+  
+  .stats-cards {
+    grid-template-columns: 1fr; /* Una sola columna en móvil */
+  }
+
+  /* Muestra el fondo oscuro cuando el menú está abierto */
+  .overlay.open {
+    display: block;
+  }
+}
+/* Colores para las Acciones Rápidas */
+.status {
+    display: inline-block; /* ESTO HABILITA EL RELLENO */
+    padding: 4px 8px;      /* ESTO DEFINE EL RELLENO */
+    border-radius: 4px;
+    font-size: 0.85em;
+    font-weight: bold;
+    text-transform: uppercase; 
+}
+
+/* 1. Venta Remate */
+.status-venta-remate {
+    background-color: #795548; /* Cafe */
+    color: white;
+}
+
+/* 2. Desempeño */
+.status-desempeno-accion {
+    background-color: #113b64; /* Verde */
+    color: white;
+}
+
+/* 3. Refrendo */
+.status-refrendo-accion {
+    background-color: #ffc107; /* Amarillo */
+    color: var(--color-azul-oscuro); 
+}
+
+/* 4. Nuevo Empeño (por defecto) */
+.status-nuevo-empeno {
+    background-color: #28a745; 
+    color: white;
+}
+
+/* 5. Revalúo */
+.status-reevaluo-accion {
+    background-color: #6f42c1; /* Púrpura */
+    color: white;
+}

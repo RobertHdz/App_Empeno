@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clientes - Panel de Control</title>
+  <link rel="stylesheet" href="clientes.css"> 
+</head>
+<body>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <img src="LOGOEMP.png" alt="Logo" class="sidebar-logo">
+      <h2>Panel de <span>Control</span></h2>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <ul>
+        <li><a href="index.html">
+          <span class="icon">&#127968;</span> Resumen
+        </a></li>
+        <li><a href="nuev_emp.html" >
+          <span class="icon">&#10133;</span> Nuevo Empeño
+        </a></li>
+        <li><a href="ref.html">
+          <span class="icon">&#128260;</span> Refrendo
+        </a></li>
+        <li><a href="desemp.html">
+          <span class="icon">&#9989;</span> Desempeño
+        </a></li>
+        <li><a href="reevaluo.html" >
+          <span class="icon">&#128220;</span> Revalúo
+        </a></li>
+        <li><a href="clientes.html"class="active">
+          <span class="icon">&#128101;</span> Clientes
+        </a></li>
+        <li><a href="history.html">
+          <span class="icon">&#128214;</span> Historial Empeños
+        </a></li>
+        <li><a href="remate.html">
+          <span class="icon">&#128739;</span> Remate Empeños
+        </a></li>
+      </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="login.html" class="logout-button">
+        <span class="icon">&#128682;</span> Cerrar Sesión
+      </a>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    
+    <header class="main-header">
+      <button id="menu-toggle" class="hamburger-button">&#9776;</button>
+      <h1>Administración de Clientes</h1>
+      <div class="user-info">
+        <span>Bienvenido</span>
+      </div>
+    </header>
+    <main class="content">
+      
+      <div class="filters search-form">
+          <div class="filter-group">
+              <label for="filtro-texto">Buscar Cliente / Artículo:</label>
+              <input type="text" id="filtro-texto" placeholder="Nombre, Folio o Artículo...">
+          </div>
+          
+          <div class="filter-group">
+              <label for="filtro-estado">Estado:</label>
+              <select id="filtro-estado">
+                  <option value="">Todos</option>
+                  <option value="Vigente">Vigente</option>
+                  <option value="Vencido">Vencido</option>
+                  <option value="Desempeñado">Desempeñado</option>
+                  <option value="Rematado">Rematado</option>
+                  <option value="Vendido">Vendido</option>
+              </select>
+          </div>
+
+          <div class="filter-group">
+              <label for="filtro-fecha-inicio">Desde:</label>
+              <input type="date" id="filtro-fecha-inicio">
+          </div>
+          
+          <div class="filter-group">
+              <label for="filtro-fecha-fin">Hasta:</label>
+              <input type="date" id="filtro-fecha-fin">
+          </div>
+
+            <button class="btn-secondary" onclick="limpiarFiltros()">Limpiar</button>
+            <button class="btn-primary" id="btn-buscar">Buscar</button> 
+      </div>     
+
+      <div id="client-details" style="margin-top: 20px;">
+        <h3>
+          <span class="icon">&#128100;</span> Clientes Recientes
+        </h3>
+        <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Cliente</th>
+                  <th>Folio</th>
+                  <th>Artículo</th>
+                  <th>Monto</th>
+                  <th>Fecha Empeño</th>
+                  <th>Vencimiento</th>
+                  <th>Estado</th>
+                  <th>Acciones</th> </tr>
+              </thead>
+              <tbody id="tabla-clientes-body">
+                </tbody>
+            </table>
+        </div>
+        <div class="pagination-container">
+            <button class="btn-page" onclick="cambiarPagina(-1)" id="btn-prev">Anterior</button>
+            <span id="page-info">Página 1</span>
+            <button class="btn-page" onclick="cambiarPagina(1)" id="btn-next">Siguiente</button>
+        </div>
+
+      </div>
+      <div id="seccion-editar-cliente" class="edit-card" style="display: none;">
+        <div class="edit-header">
+            <h3><span class="icon">&#9999;&#65039;</span> Detalles y Edición del Cliente</h3>
+            <button type="button" class="btn-close" onclick="cerrarEdicion()">×</button>
+        </div>
+
+        <form id="form-editar">
+            <input type="hidden" id="edit-empeno-id">
+            <input type="hidden" id="edit-cliente-id">
+
+            <h4 class="section-subtitle">Datos Personales</h4>
+            <div class="form-grid cols-2">
+                <div class="input-group">
+                    <label>Nombre(s)</label>
+                    <input type="text" id="edit-nombre">
+                </div>
+                <div class="input-group">
+                    <label>Apellidos</label>
+                    <input type="text" id="edit-apellidos">
+                </div>
+                <div class="input-group">
+                    <label>Teléfono</label>
+                    <input type="text" id="edit-telefono">
+                </div>
+                <div class="input-group">
+                    <label>Dirección</label>
+                    <input type="text" id="edit-direccion">
+                </div>
+            </div>
+
+            <hr class="separator">
+
+            <h4 class="section-subtitle">Datos del Artículo y Empeño</h4>
+            <div class="form-grid cols-3">
+                <div class="input-group">
+                    <label>Categoría</label>
+                    <input type="text" id="edit-categoria">
+                </div>
+                <div class="input-group">
+                    <label>Artículo / Marca</label>
+                    <input type="text" id="edit-articulo">
+                </div>
+                <div class="input-group">
+                    <label>Estado Actual</label>
+                    <select id="edit-estado">
+                        <option value="Vigente">Vigente</option>
+                        <option value="Vencido">Vencido</option>
+                        <option value="Desempeñado">Desempeñado</option>
+                        <option value="Rematado">Rematado</option>
+                        <option value="Vendido">Vendido</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Fecha Empeño</label>
+                    <input type="date" id="edit-fecha-empeno">
+                </div>
+                <div class="input-group">
+                    <label>Fecha Vencimiento</label>
+                    <input type="date" id="edit-fecha-vencimiento">
+                </div>
+                <div class="input-group">
+                  <label>Días de Gracia Extra</label>
+                  <input type="number" id="edit-dias-gracia" value="2" min="0" step="1" inputmode="numeric" pattern="^\\d+$">
+                </div>
+            </div>
+
+            <div class="form-actions" style="margin-top: 20px;">
+              <button type="button" class="btn-secondary" onclick="cerrarEdicion()">Cancelar</button>
+              <button type="button" id="btn-editar" class="btn-primary" style="display:none; margin-left:8px;" onclick="habilitarEdicion()">Editar</button>
+              <button type="submit" class="btn-primary">Guardar Cambios</button>
+            </div>
+        </form>
+      </div>
+
+            <div id="activity-summary" style="margin-top: 40px;">
+         <h3 class="subsection-title">
+          <span class="icon">&#128202;</span> Resumen de Actividad de Cliente
+        </h3>
+
+        <div class="client-stats-grid">
+          <div class="card">
+            <h3>Empeños Totales</h3>
+            <span class="stat-number" id="stat-total">0</span>
+          </div>
+          
+          <div class="card">
+            <h3>Empeños Activos</h3>
+            <span class="stat-number" id="stat-activos">0</span>
+          </div>
+          
+          <div class="card">
+            <h3>Desempeñados</h3>
+            <span class="stat-number" id="stat-desempenados">0</span>
+          </div>
+          
+          <div class="card">
+            <h3>Empeños Perdidos</h3>
+            <span class="stat-number" id="stat-perdidos">0</span>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  <div class="overlay" id="overlay"></div>
+ <script>
+    // Lógica para CERRAR SESIÓN
+    const btnLogout = document.querySelector('.logout-button');
+
+    if (btnLogout) {
+        btnLogout.addEventListener('click', (e) => {
+            e.preventDefault(); // Evita que el enlace navegue solo
+            
+            // 1. Borramos la llave del navegador
+            localStorage.removeItem('token_auto_empeno');
+            
+            // 2. (Opcional) Avisamos al usuario
+            alert('Sesión cerrada correctamente');
+
+            // 3. Redirigimos al Login
+            window.location.href = '/';
+        });
+    }
+
+    // Lógica de PROTECCIÓN (Si no tienes llave, ¡fuera de aquí!)
+    const token = localStorage.getItem('token_auto_empeno');
+    if (!token) {
+        window.location.href = '/';
+    }
+
+    let todosLosEmpenos = [];
+    let displayedData = []; // subconjunto actual que se muestra (puede ser filtrado/buscado)
+    let currentPage = 1;
+    const pageSize = 10; // filas por página
+
+    // --- 1. CARGAR DATOS ---
+    async function cargarTabla() {
+      const tbody = document.getElementById('tabla-clientes-body');
+      // tbody.innerHTML = '... cargando ...'; (Opcional)
+
+      try {
+        const response = await fetch('/empenos/todos', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+          todosLosEmpenos = await response.json();
+          // inicializamos la vista mostrada con todos los empeños
+          displayedData = todosLosEmpenos;
+          currentPage = 1;
+          // A. Dibujamos la tabla (paginada)
+          renderizarTabla(displayedData);
+          
+          // B. Calculamos los contadores de arriba (¡NUEVO!)
+          calcularEstadisticas(todosLosEmpenos);
+
+        } else {
+          console.error("Error cargando datos");
+          if(response.status === 401) window.location.href = 'login.html';
+        }
+      } catch (error) {
+        console.error("Error de conexión:", error);
+      }
+    }
+
+    // --- 2. FUNCIÓN MATEMÁTICA DE RESUMEN (NUEVO) ---
+    function calcularEstadisticas(datos) {
+        // 1. Total Histórico
+        document.getElementById('stat-total').innerText = datos.length;
+
+        // 2. Activos (Sumamos Vigentes y Vencidos, pues aun tienes la prenda)
+        const activos = datos.filter(item => 
+            item.estado === 'Vigente' || item.estado === 'Vencido'
+        ).length;
+        document.getElementById('stat-activos').innerText = activos;
+
+        // 3. Desempeñados (Ya pagaron y se fueron)
+        const desempenados = datos.filter(item => item.estado === 'Desempeñado').length;
+        document.getElementById('stat-desempenados').innerText = desempenados;
+
+        // 4. Perdidos (Rematados / Vendidos)
+        const perdidos = datos.filter(item => 
+            item.estado === 'Rematado' || item.estado === 'Vendido' // 🎯 AÑADIDO 'Vendido'
+        ).length;
+        document.getElementById('stat-perdidos').innerText = perdidos;
+    }
+
+    // --- 3. RENDERIZAR TABLA (Ya lo tenías) ---
+// --- 2. DIBUJAR TABLA (Con Nombres Reales) ---
+    function renderizarTabla(listaDatos) {
+      const tbody = document.getElementById('tabla-clientes-body');
+      // Limpiar de forma explícita para evitar que queden nodos o listeners antiguos
+      while (tbody.firstChild) tbody.removeChild(tbody.firstChild);
+
+      // Guardamos la lista visible para la paginación
+      displayedData = listaDatos || [];
+      const totalItems = displayedData.length;
+      const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+
+      // Ajustamos currentPage dentro de límites
+      if (currentPage > totalPages) currentPage = totalPages;
+      if (currentPage < 1) currentPage = 1;
+
+      if (totalItems === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center">No hay registros.</td></tr>';
+        // Actualizar controles de paginación
+        document.getElementById('page-info').innerText = `Página 0 de 0`;
+        document.getElementById('btn-prev').disabled = true;
+        document.getElementById('btn-next').disabled = true;
+        return;
+      }
+
+      const start = (currentPage - 1) * pageSize;
+      const end = start + pageSize;
+      const pageItems = displayedData.slice(start, end);
+
+      pageItems.forEach(item => {
+        const tr = document.createElement('tr');
+
+        // Resolver Nombre
+        let nombreMostrado = `Cliente #${item.cliente_id}`;
+        if (item.cliente && item.cliente.nombre) {
+            nombreMostrado = `${item.cliente.nombre} ${item.cliente.apellidos}`;
+        }
+
+        // Formatos
+        const montoFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(item.monto_prestamo);
+        
+        // 🎯 Normalización completa del estado para crear la clase CSS
+        const estadoClass = item.estado 
+          ? item.estado.toLowerCase()
+              .normalize("NFD") // Descompone caracteres (ñ -> n + tilde)
+              .replace(/[\u0300-\u036f]/g, "") // Elimina acentos/tildes
+              .replace(/\s/g, '') // Elimina espacios (por si acaso)
+          : '';
+          
+        // Celdas
+        const tdNombre = document.createElement('td'); tdNombre.style.fontWeight = 'bold'; tdNombre.style.color = '#113b64'; tdNombre.textContent = nombreMostrado;
+        const tdFolio = document.createElement('td'); tdFolio.textContent = item.id;
+        const tdArticulo = document.createElement('td'); tdArticulo.textContent = item.marca_modelo || '-';
+        const tdMonto = document.createElement('td'); tdMonto.textContent = montoFmt;
+        const tdFechaEmp = document.createElement('td'); tdFechaEmp.textContent = item.fecha_empeno || '';
+        const tdVence = document.createElement('td'); tdVence.textContent = item.fecha_vencimiento || '';
+        
+        // Columna Estado (Aplicando las clases 'status' y 'status-xxx')
+        const tdEstado = document.createElement('td');
+        const spanEstado = document.createElement('span'); 
+        spanEstado.className = `status status-${estadoClass}`; 
+        spanEstado.textContent = item.estado || '';
+        tdEstado.appendChild(spanEstado);
+
+        // Acciones (botones)
+        const tdAcciones = document.createElement('td'); tdAcciones.style.textAlign = 'center';
+        const accionesCont = document.createElement('div'); accionesCont.style.display = 'flex'; accionesCont.style.justifyContent = 'center'; accionesCont.style.gap = '10px';
+
+        // Botón Seleccionar
+        const btnSelect = document.createElement('button');
+        btnSelect.className = 'btn-select btn-primary';
+        btnSelect.title = 'Seleccionar';
+        btnSelect.textContent = 'Seleccionar';
+        btnSelect.addEventListener('click', () => abrirEdicion(item.id));
+        accionesCont.appendChild(btnSelect);
+
+        // Botón Enviar a Remate (si aplica)
+        if (item.estado === 'Vencido') {
+            const btnRemate = document.createElement('button');
+            btnRemate.className = 'btn-icon btn-delete';
+            btnRemate.title = 'Enviar a Remate';
+            // Usar closure para pasar valores seguros
+            btnRemate.addEventListener('click', () => enviarARemate(item.id, item.marca_modelo));
+            accionesCont.appendChild(btnRemate);
+        } else if (item.estado === 'Rematado' || item.estado === 'Vendido') { // 🎯 AÑADIDO 'Vendido'
+            const aviso = document.createElement('span'); aviso.style.fontSize = '0.8em'; aviso.style.color = 'orange'; aviso.textContent = '';
+            accionesCont.appendChild(aviso);
+        }
+
+        tdAcciones.appendChild(accionesCont);
+
+        // Añadir celdas a la fila
+        tr.appendChild(tdNombre);
+        tr.appendChild(tdFolio);
+        tr.appendChild(tdArticulo);
+        tr.appendChild(tdMonto);
+        tr.appendChild(tdFechaEmp);
+        tr.appendChild(tdVence);
+        tr.appendChild(tdEstado);
+        tr.appendChild(tdAcciones);
+
+        tbody.appendChild(tr);
+      });
+
+      // Actualizar controles de paginación
+      document.getElementById('page-info').innerText = `Página ${currentPage} de ${totalPages}`;
+      document.getElementById('btn-prev').disabled = currentPage <= 1;
+      document.getElementById('btn-next').disabled = currentPage >= totalPages;
+    }
+
+    // --- 4. FILTROS (Ya lo tenías, se mantiene igual) ---
+    function filtrarDatos() {
+      const texto = document.getElementById('filtro-texto').value.toLowerCase();
+      const estado = document.getElementById('filtro-estado').value;
+      const fechaInicio = document.getElementById('filtro-fecha-inicio').value;
+      const fechaFin = document.getElementById('filtro-fecha-fin').value;
+
+      const datosFiltrados = todosLosEmpenos.filter(item => {
+        const nombreC = item.cliente ? `${item.cliente.nombre} ${item.cliente.apellidos}` : '';
+        
+        const coincideTexto = 
+            item.marca_modelo.toLowerCase().includes(texto) ||
+            item.id.toString().includes(texto) ||
+            nombreC.toLowerCase().includes(texto);
+
+        const coincideEstado = estado === "" || item.estado === estado;
+
+        let coincideFecha = true;
+        if (fechaInicio && fechaFin) {
+          const fechaItem = new Date(item.fecha_empeno);
+          const fInicio = new Date(fechaInicio);
+          const fFin = new Date(fechaFin);
+          coincideFecha = fechaItem >= fInicio && fechaItem <= fFin;
+        }
+
+        return coincideTexto && coincideEstado && coincideFecha;
+      });
+
+      renderizarTabla(datosFiltrados);
+      
+      // Opcional: ¿Quieres que los números de arriba cambien al filtrar?
+      // Si sí, descomenta la siguiente línea:
+      // calcularEstadisticas(datosFiltrados); 
+    }
+
+    // Listeners
+    // Nota: la búsqueda por texto ahora se realiza con el botón "Buscar" (consulta al servidor),
+    // en lugar de filtrar en cada pulsación. Los filtros de estado/fecha siguen aplicando sobre
+    // los datos cargados en memoria (`todosLosEmpenos`).
+    document.getElementById('filtro-estado').addEventListener('change', filtrarDatos);
+    document.getElementById('filtro-fecha-inicio').addEventListener('change', filtrarDatos);
+    document.getElementById('filtro-fecha-fin').addEventListener('change', filtrarDatos);
+
+    // --- BÚSQUEDA REMOTA (Botón) ---
+    const btnBuscar = document.getElementById('btn-buscar');
+    btnBuscar.addEventListener('click', async () => {
+      const query = document.getElementById('filtro-texto').value.trim();
+
+      // Si no escribe nada, recargamos la tabla completa
+      if (!query) {
+        cargarTabla();
+        return;
+      }
+
+      try {
+        const response = await fetch(`/clientes/buscar?q=${encodeURIComponent(query)}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+          const clientes = await response.json();
+
+          // Aplanar los empeños encontrados para reutilizar renderizarTabla y calcularEstadisticas
+          const empenosEncontrados = [];
+          clientes.forEach(cliente => {
+            if (cliente.empenos && cliente.empenos.length > 0) {
+              cliente.empenos.forEach(empeno => {
+                // Adjuntamos referencia al cliente para poder mostrar nombre
+                empeno.cliente = {
+                  nombre: cliente.nombre || '',
+                  apellidos: cliente.apellidos || '',
+                  telefono: cliente.telefono || '',
+                  direccion: cliente.direccion || ''
+                };
+                empenosEncontrados.push(empeno);
+              });
+            }
+          });
+
+          // Actualizamos la memoria y renderizamos (reiniciamos paginación)
+          todosLosEmpenos = empenosEncontrados;
+          displayedData = empenosEncontrados;
+          currentPage = 1;
+          renderizarTabla(displayedData);
+          calcularEstadisticas(todosLosEmpenos);
+
+          if (todosLosEmpenos.length === 0) {
+            const tbody = document.getElementById('tabla-clientes-body');
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color: #666;">No se encontraron resultados.</td></tr>';
+          }
+        } else {
+          console.error('Error buscando clientes');
+          alert('Error al buscar clientes (ver consola)');
+        }
+      } catch (error) {
+        console.error('Error de conexión al buscar clientes:', error);
+        alert('Error de conexión al buscar clientes');
+      }
+    });
+
+    // --- PAGINACIÓN: cambiar página ---
+    window.cambiarPagina = function(delta) {
+      // delta: -1 o +1
+      currentPage = (currentPage || 1) + delta;
+      // recalcular límites y renderizar
+      const totalPages = Math.max(1, Math.ceil((displayedData.length || 0) / pageSize));
+      if (currentPage < 1) currentPage = 1;
+      if (currentPage > totalPages) currentPage = totalPages;
+      renderizarTabla(displayedData);
+    }
+
+    // Inicializar
+    document.addEventListener('DOMContentLoaded', cargarTabla);
+
+    // Aplicar sanitización al campo de días de gracia (si existe)
+    document.addEventListener('DOMContentLoaded', () => {
+      const el = document.getElementById('edit-dias-gracia');
+      if (el) sanitizePositiveIntegerInput(el);
+    });
+
+
+
+    // --- FUNCIÓN PARA ABRIR EL EDITOR ---
+  window.abrirEdicion = function(id) {
+      // 1. Buscar el objeto completo en la memoria
+      const item = todosLosEmpenos.find(e => e.id === id);
+      if (!item) return;
+
+      // 2. Llenar los campos del formulario con los datos actuales
+      // IDs Ocultos
+      document.getElementById('edit-empeno-id').value = item.id;
+      document.getElementById('edit-cliente-id').value = item.cliente_id;
+
+      // Datos Cliente (Si existen)
+      if (item.cliente) {
+          document.getElementById('edit-nombre').value = item.cliente.nombre || '';
+          document.getElementById('edit-apellidos').value = item.cliente.apellidos || '';
+          document.getElementById('edit-telefono').value = item.cliente.telefono || '';
+          document.getElementById('edit-direccion').value = item.cliente.direccion || '';
+      }
+
+      // Datos Artículo
+      document.getElementById('edit-categoria').value = item.categoria || '';
+      document.getElementById('edit-articulo').value = item.marca_modelo || '';
+      document.getElementById('edit-estado').value = item.estado; // Select inteligente
+      document.getElementById('edit-fecha-empeno').value = item.fecha_empeno;
+      document.getElementById('edit-fecha-vencimiento').value = item.fecha_vencimiento;
+      // Poblamos el campo de Días de Gracia Extra si existe en el objeto (no se envía todavía al backend)
+      const diasGraciaEl = document.getElementById('edit-dias-gracia');
+      if (diasGraciaEl) {
+        diasGraciaEl.value = (item.dias_gracia_extra !== undefined && item.dias_gracia_extra !== null) ? item.dias_gracia_extra : diasGraciaEl.value || 2;
+      }
+
+        // 3. MOSTRAR EL FORMULARIO (Quitamos el display: none)
+        const seccion = document.getElementById('seccion-editar-cliente');
+        seccion.style.display = 'block';
+
+        // Deshabilitar edición: marcamos todos los inputs/select como readonly/disabled
+        const form = document.getElementById('form-editar');
+        const elementos = form.querySelectorAll('input, select, textarea');
+        elementos.forEach(el => {
+          // no queremos que el usuario modifique por ahora
+          el.disabled = true;
+          // además, quitamos enfoque accidental
+          el.tabIndex = -1;
+        });
+
+        // Ocultar el botón de guardar cambios (lo dejamos para futura edición)
+        const btnGuardar = form.querySelector('button[type="submit"]');
+        const btnEditar = document.getElementById('btn-editar');
+        if (btnGuardar) btnGuardar.style.display = 'none';
+        if (btnEditar) btnEditar.style.display = 'inline-block';
+
+          // Hacemos scroll suave hacia el formulario para que el usuario lo vea
+          seccion.scrollIntoView({ behavior: 'smooth' });
+
+          // Actualizar las cards para mostrar solo los empeños de este cliente
+          actualizarEstadisticasParaCliente(item);
+  };
+    // Función para cerrar el panel
+    window.cerrarEdicion = function() {
+      document.getElementById('seccion-editar-cliente').style.display = 'none';
+      // Restaurar estado: ocultar botón editar y mostrar guardar por defecto
+      const form = document.getElementById('form-editar');
+      const btnEditar = document.getElementById('btn-editar');
+      const btnGuardar = form.querySelector('button[type="submit"]');
+      if (btnEditar) btnEditar.style.display = 'none';
+      if (btnGuardar) btnGuardar.style.display = '';
+      // Asegurarnos que los inputs queden habilitados para la siguiente apertura normal
+      const elementos = form.querySelectorAll('input, select, textarea');
+      elementos.forEach(el => {
+        el.disabled = false;
+        el.tabIndex = 0;
+      });
+    }
+    
+    // Habilita la edición dentro del panel: muestra botón Guardar y habilita inputs
+    window.habilitarEdicion = function() {
+      const form = document.getElementById('form-editar');
+      const elementos = form.querySelectorAll('input, select, textarea');
+      elementos.forEach(el => {
+        el.disabled = false;
+        el.tabIndex = 0;
+      });
+
+      const btnEditar = document.getElementById('btn-editar');
+      const btnGuardar = form.querySelector('button[type="submit"]');
+      if (btnEditar) btnEditar.style.display = 'none';
+      if (btnGuardar) btnGuardar.style.display = '';
+
+      // Poner foco en el primer campo editable
+      const first = form.querySelector('input:not([type="hidden"]):not([disabled])');
+      if (first) first.focus();
+    }
+    
+    // Normaliza cadenas para comparación (quita espacios extras y pasa a minúsculas)
+    function _normalizaCadena(s) {
+      return (s || '').toString().toLowerCase().trim().replace(/\s+/g, ' ');
+    }
+
+    // Sanitizador para enteros positivos (usado en el campo Días de Gracia)
+    function sanitizePositiveIntegerInput(el) {
+      if (!el) return;
+      el.addEventListener('input', () => {
+        let v = String(el.value).replace(/[^0-9]/g, '');
+        if (v.length > 1 && v.startsWith('0')) {
+          v = v.replace(/^0+/, '');
+        }
+        el.value = v;
+      });
+      el.addEventListener('paste', (e) => {
+        const text = (e.clipboardData || window.clipboardData).getData('text');
+        if (!/^[0-9]+$/.test(text)) {
+          e.preventDefault();
+        }
+      });
+    }
+
+    // Actualiza las cards (estadísticas) para un cliente específico.
+    // Prioriza comparar por cliente_id; si no existe, compara nombre+apellidos+dirección.
+    function actualizarEstadisticasParaCliente(item) {
+      if (!item) return calcularEstadisticas(todosLosEmpenos);
+
+      const clienteId = item.cliente_id || (item.cliente && item.cliente.id);
+      let nombre = item.cliente ? _normalizaCadena(item.cliente.nombre) : _normalizaCadena(document.getElementById('edit-nombre').value);
+      let apellidos = item.cliente ? _normalizaCadena(item.cliente.apellidos) : _normalizaCadena(document.getElementById('edit-apellidos').value);
+      let direccion = item.cliente ? _normalizaCadena(item.cliente.direccion || '') : _normalizaCadena(document.getElementById('edit-direccion').value || '');
+
+      let coincidencias = [];
+
+      if (clienteId) {
+        coincidencias = todosLosEmpenos.filter(e => e.cliente_id === clienteId);
+      } else {
+        coincidencias = todosLosEmpenos.filter(e => {
+          if (!e.cliente) return false;
+          return _normalizaCadena(e.cliente.nombre) === nombre && _normalizaCadena(e.cliente.apellidos || '') === apellidos && _normalizaCadena(e.cliente.direccion || '') === direccion;
+        });
+      }
+
+      // Si no encontramos resultados en la memoria, mostramos 0s (evita mezclar otros clientes)
+      calcularEstadisticas(coincidencias);
+    }
+  // --- GUARDAR CAMBIOS (EDICIÓN) ---
+  const formEditar = document.getElementById('form-editar');
+
+  formEditar.addEventListener('submit', async (e) => {
+      e.preventDefault(); // Evita que se recargue la página sola
+
+      // 1. Recoger los IDs ocultos
+      const idEmpeno = document.getElementById('edit-empeno-id').value;
+
+      // 2. Armar el objeto con los datos del formulario
+      const payload = {
+          // Datos Cliente
+          nombre: document.getElementById('edit-nombre').value,
+          apellidos: document.getElementById('edit-apellidos').value,
+          telefono: document.getElementById('edit-telefono').value,
+          direccion: document.getElementById('edit-direccion').value,
+
+          // Datos Empeño
+          categoria: document.getElementById('edit-categoria').value,
+          marca_modelo: document.getElementById('edit-articulo').value,
+          estado: document.getElementById('edit-estado').value,
+          fecha_empeno: document.getElementById('edit-fecha-empeno').value,
+          fecha_vencimiento: document.getElementById('edit-fecha-vencimiento').value
+      };
+
+          // Nota: por ahora no enviamos 'dias de gracia' al backend. Podemos añadirlo cuando lo implementes.
+
+      try {
+          // 3. Enviar al Backend (PUT)
+          const response = await fetch(`/empenos/${idEmpeno}/editar`, {
+              method: 'PUT', // Usamos PUT para actualizar
+              headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify(payload)
+          });
+
+          if (response.ok) {
+              alert("✅ Cambios guardados correctamente");
+              window.location.reload(); // Recargamos para ver los cambios en la tabla
+          } else {
+              alert("Error al guardar los cambios");
+          }
+
+      } catch (error) {
+          console.error(error);
+          alert("Error de conexión");
+      }
+  });
+  </script>
+</body>
+</html>

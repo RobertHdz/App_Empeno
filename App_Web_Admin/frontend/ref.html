@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Refrendo - Panel de Control</title>
+  <link rel="stylesheet" href="ref.css">
+</head>
+<body>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <img src="LOGOEMP.png" alt="Logo" class="sidebar-logo">
+      <h2>Panel de <span>Control</span></h2>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <ul>
+        <li><a href="index.html">
+          <span class="icon">&#127968;</span> Resumen
+        </a></li>
+        <li><a href="nuev_emp.html" >
+          <span class="icon">&#10133;</span> Nuevo Empeño
+        </a></li>
+        <li><a href="ref.html" class="active">
+          <span class="icon">&#128260;</span> Refrendo
+        </a></li>
+        <li><a href="desemp.html">
+          <span class="icon">&#9989;</span> Desempeño
+        </a></li>
+        <li><a href="reevaluo.html">
+          <span class="icon">&#128220;</span> Revalúo
+        </a></li>
+        <li><a href="clientes.html">
+          <span class="icon">&#128101;</span> Clientes
+        </a></li>
+        <li><a href="history.html">
+          <span class="icon">&#128214;</span> Historial Empeños
+        </a></li>
+        <li><a href="remate.html">
+          <span class="icon">&#128739;</span> Remate Empeños
+        </a></li>
+      </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="index.html"class="logout-button">
+        <span class="icon">&#128682;</span> Cerrar Sesión
+      </a>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    
+    <header class="main-header">
+      <button id="menu-toggle" class="hamburger-button">&#9776;</button>
+      <h1>Registrar Refrendo</h1>
+      <div class="user-info">
+        <span>Bienvenido</span>
+      </div>
+    </header>
+
+    <main class="content">
+      
+      <div class="search-bar">
+        <input type="text" id="busqueda-input" placeholder="Ingrese nombre, celular o INE del cliente...">
+        <button type="button" id="btn-buscar" class="search-btn">Buscar Cliente</button>
+          <span>&#128269;</span> 
+      </div>
+      
+      <div id="refrendo-details">
+        <h3>
+          <span class="icon">&#128100;</span> Datos del Empeño 
+          <span class="folio">(Folio: 12345)</span>
+        </h3>
+        
+        <div class="refrendo-details-content">
+          <div class="form-grid">
+            <div class="input-group">
+              <label>Cliente</label>
+              <input type="text" id="info-cliente" placeholder="Seleccione un empeño..." readonly>
+            </div>
+            <div class="input-group">
+              <label>Artículo</label>
+              <input type="text" id="info-articulo" readonly>
+            </div>
+          </div>
+
+          <h3 class="subsection-title">
+            <span class="icon">&#128176;</span> Detalles del Préstamo
+          </h3>
+          <div class="form-grid cols-3">
+            <div class="input-group">
+              <label>Monto Préstamo ($)</label>
+              <input type="text" id="info-prestamo" readonly>
+            </div>
+            <div class="input-group">
+              <label>Monto Refrendo (Interés Base) ($)</label>
+              <input type="text" id="info-interes" readonly>
+            </div>
+            <div class="input-group">
+              <label>Fecha de Vencimiento</label>
+              <input type="date" id="info-vencimiento" readonly>
+            </div>
+          </div>
+        </div>
+
+          <h3 class="subsection-title">
+            <span class="icon">&#9881;</span> Acciones y Ajustes de Pago
+          </h3>
+          <div class="form-grid cols-3">
+            <!-- Campo eliminado: 'Añadir Días de Gracia Extra' movido a administración de clientes -->
+            <div class="input-group">
+              <label for="abono-refrendo">Abono a Refrendo ($)</label>
+              <input type="number" id="abono-refrendo" name="abono-refrendo" step="1" min="0" inputmode="numeric" pattern="^\\d+$" placeholder="0">
+            </div>
+            <div class="input-group">
+              <label for="abono-capital">Abono a Capital ($)</label>
+              <input type="number" id="abono-capital" name="abono-capital" step="1" min="0" inputmode="numeric" pattern="^\\d+$" placeholder="0">
+            </div>
+          </div>
+          <h3 class="subsection-title">
+            <span class="icon">&#128203;</span> Cálculo de Pago (Hoy: 30/10/2025)
+          </h3>
+          
+          <div class="payment-summary">
+            <div class="summary-item">
+              <span>Monto Refrendo (Base):</span>
+              <span id="resumen-base">$0.00</span>
+            </div>
+
+            <div class="summary-item info">
+              <span>Días de Gracia / Retraso:</span>
+              <span id="resumen-dias">0 días</span>
+            </div>
+
+            <div class="summary-item penalty">
+              <span>Recargos de dias de gracia:</span>
+              <input type="number" id="input-recargos" value="0.00" step="1.00" class="input-monto-editable">
+            </div>
+
+            <div class="summary-item penalty">
+              <span>Multa (Por retraso):</span>
+              <input type="number" id="input-multa" value="0.00" step="1.00" class="input-monto-editable">
+            </div>
+
+            <div class="summary-item-details">
+              <span id="resumen-mensaje">(Selecciona un empeño para calcular)</span>
+            </div>
+
+            <div class="summary-total">
+              <span>TOTAL A PAGAR:</span>
+              <span id="resumen-total">$0.00</span>
+            </div>
+          </div>
+
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" onclick="window.location.href='dash.html'">Cancelar</button>
+            <button type="submit" id="btn-pagar" class="btn btn-primary" disabled>Registrar Pago</button>
+          </div>
+        </div> 
+      </div>
+
+    </main>
+  <section class="content-placeholder">
+        <h2></h2>
+        <p>Resultados de clientes.</p>
+      <table class="loan-selection">
+          <thead>
+            <tr>
+              <th>Select</th> <th>Folio</th>
+              <th>Artículo</th>
+              <th>Vencimiento</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-resultados-body">
+            <tr>
+              <td colspan="5" style="text-align:center; color: #666;">
+                Usa el buscador para encontrar al cliente
+              </td>
+            </tr>
+          </tbody>
+      </table>
+  </section>
+  <div class="overlay" id="overlay"></div>
+ <script>
+    // Lógica para CERRAR SESIÓN (Se mantiene igual)
+    const btnLogout = document.querySelector('.logout-button');
+
+    if (btnLogout) {
+        btnLogout.addEventListener('click', (e) => {
+            e.preventDefault(); 
+            localStorage.removeItem('token_auto_empeno');
+            alert('Sesión cerrada correctamente');
+            window.location.href = '/';
+        });
+    }
+
+    // Lógica de PROTECCIÓN (Se mantiene igual)
+    const token = localStorage.getItem('token_auto_empeno');
+    if (!token) {
+        window.location.href = '/';
+    }
+
+    // --- FUNCIONES AUXILIARES DE CÁLCULO DE FECHAS ---
+
+    /**
+     * @description Calcula los días enteros de diferencia entre dos fechas, 
+     * evitando el error del "día extra" y asegurando que la comparación 
+     * sea solo por fecha (medianoche).
+     */
+    function calcularDiasDiferencia(fechaMenorStr, fechaMayor) {
+      // 1. Crear fecha de vencimiento a medianoche (acepta formatos 'YYYY-MM-DD' o ISO)
+      let fechaMenor = new Date(fechaMenorStr);
+      if (isNaN(fechaMenor.getTime())) {
+        // intenta con sufijo T00:00:00 para formatos simples
+        fechaMenor = new Date(fechaMenorStr + 'T00:00:00');
+      }
+      fechaMenor.setHours(0,0,0,0);
+
+      // 2. Crear fecha de HOY a medianoche (solo día)
+      const fechaMayorSoloDia = new Date(fechaMayor.getFullYear(), fechaMayor.getMonth(), fechaMayor.getDate());
+
+        const diffTime = fechaMayorSoloDia - fechaMenor;
+        
+        // 3. Calcular días. Math.floor() evita el día extra si la diferencia es mínima.
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        
+        return diffDays;
+    }
+
+    /**
+     * @description Determina el estado del empeño (Vigente, Vencido o Rematado) 
+     * basado en la fecha de vencimiento y 5 días de gracia.
+     */
+    function calcularEstadoYRetraso(fechaVencimientoStr) {
+        const DIAS_GRACIA = 5;
+        const hoy = new Date();
+        
+        const diasDesdeVencimiento = calcularDiasDiferencia(fechaVencimientoStr, hoy);
+        
+        let estadoCalculado = '';
+        let diasRetraso = 0; 
+
+        if (diasDesdeVencimiento <= 0) {
+            estadoCalculado = 'Vigente';
+            diasRetraso = 0;
+        } else if (diasDesdeVencimiento <= DIAS_GRACIA) {
+            // Entre 1 y 5 días
+            estadoCalculado = 'Vencido';
+            diasRetraso = diasDesdeVencimiento; 
+        } else {
+            // 6 días o más
+            estadoCalculado = 'Rematado';
+            diasRetraso = diasDesdeVencimiento; 
+        }
+
+        return {
+            estado: estadoCalculado,
+            diasRetraso: diasRetraso,
+            diasTotalesGracia: DIAS_GRACIA
+        };
+    }
+
+    // --- 1. LÓGICA DE BÚSQUEDA (Se mantiene igual) ---
+    const btnBuscar = document.getElementById('btn-buscar');
+    const inputBusqueda = document.getElementById('busqueda-input');
+    const tbody = document.getElementById('tabla-resultados-body');
+
+    btnBuscar.addEventListener('click', async () => {
+      const query = inputBusqueda.value.trim();
+      
+      if (!query) {
+        alert("Por favor escribe un nombre, teléfono o INE.");
+        return;
+      }
+
+      try {
+        const response = await fetch(`/clientes/buscar?q=${query}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+          const clientes = await response.json();
+          tbody.innerHTML = ''; 
+
+          if (clientes.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No se encontraron clientes.</td></tr>';
+            return;
+          }
+          
+          clientes.forEach(cliente => {
+            if(cliente.empenos && cliente.empenos.length > 0) {
+                cliente.empenos.forEach(empeno => {
+                    const { estado } = calcularEstadoYRetraso(empeno.fecha_vencimiento);
+                    
+                    if (estado === 'Vigente' || estado === 'Vencido') {
+                      const nombreCompleto = `${cliente.nombre} ${cliente.apellidos}`;
+                      const estadoClass = estado.toLowerCase().replace(/ñ/g, 'n'); 
+
+                      // Construir fila con DOM para permitir control fino del botón
+                      const tr = document.createElement('tr');
+
+                      // Columna: botón Seleccionar (solo habilitado si está Vencido)
+                      const tdBtn = document.createElement('td');
+                      const btn = document.createElement('button');
+                      btn.className = 'btn-select';
+                      btn.textContent = 'Seleccionar';
+                      if (estado === 'Vencido') {
+                        btn.addEventListener('click', () => seleccionarEmpeno(
+                          empeno.id,
+                          empeno.fecha_vencimiento,
+                          // asegurar que monto sea numérico
+                          Number(empeno.monto_prestamo),
+                          nombreCompleto,
+                          empeno.marca_modelo,
+                          // pasar datos de cliente opcionales si existen
+                          cliente.telefono || '',
+                          cliente.direccion || ''
+                        ));
+                      } else {
+                        // Vigente -> no se puede refrendar: mostrar botón deshabilitado
+                        btn.disabled = true;
+                        btn.classList.add('disabled');
+                        btn.title = 'No se puede refrendar cuando está Vigente';
+                      }
+                      tdBtn.appendChild(btn);
+
+                      // Columna: Folio
+                      const tdFolio = document.createElement('td'); tdFolio.textContent = empeno.id;
+
+                      // Columna: Artículo + cliente
+                      const tdArticulo = document.createElement('td');
+                      tdArticulo.innerHTML = `${escapeHtml(empeno.marca_modelo || '-') } <br><small>(${escapeHtml(nombreCompleto)})</small>`;
+
+                      // Columna: Vencimiento
+                      const tdVence = document.createElement('td'); tdVence.textContent = empeno.fecha_vencimiento;
+
+                      // Columna: Estado
+                      const tdEstado = document.createElement('td');
+                      const spanEstado = document.createElement('span');
+                      spanEstado.className = `status status-${estadoClass}`;
+                      spanEstado.textContent = estado;
+                      tdEstado.appendChild(spanEstado);
+
+                      tr.appendChild(tdBtn);
+                      tr.appendChild(tdFolio);
+                      tr.appendChild(tdArticulo);
+                      tr.appendChild(tdVence);
+                      tr.appendChild(tdEstado);
+
+                      tbody.appendChild(tr);
+                    }
+                });
+            }
+          });
+          
+          if (tbody.innerHTML === '') {
+              tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">El cliente existe pero no tiene empeños activos.</td></tr>';
+          }
+
+        } else {
+          alert("Error al buscar cliente.");
+        }
+      } catch (error) {
+        console.error(error);
+        alert("Error de conexión");
+      }
+    });
+
+    // --- 2. LÓGICA DE SELECCIÓN ---
+   
+    let empenoSeleccionadoId = null;
+    let interesBaseGlobal = 0; 
+
+    // --- FUNCIÓN DE SELECCIÓN (MODIFICADA LA LÍNEA DEL MENSAJE) ---
+    window.seleccionarEmpeno = function(id, fechaVencimientoStr, montoPrestamo, nombreCliente, nombreArticulo, telefono, direccion) {
+      empenoSeleccionadoId = id;
+
+      // Asegurar que montoPrestamo sea número
+      const montoNum = (typeof montoPrestamo === 'number') ? montoPrestamo : Number(montoPrestamo);
+      const montoFinal = isNaN(montoNum) ? 0 : montoNum;
+
+      // 1. Llenar datos informativos (mostrar teléfono/dirección si están disponibles)
+      let clienteDisplay = nombreCliente || '';
+      if (telefono) clienteDisplay += ` - Tel: ${telefono}`;
+      if (direccion) clienteDisplay += ` | ${direccion}`;
+      document.getElementById('info-cliente').value = clienteDisplay;
+      document.getElementById('info-articulo').value = nombreArticulo || '';
+      document.getElementById('info-prestamo').value = `$${montoFinal.toFixed(2)}`;
+      document.getElementById('info-vencimiento').value = fechaVencimientoStr;
+
+      // 2. Calcular Interés Base (Refrendo)
+      interesBaseGlobal = montoFinal * 0.10; // 10% de interés base
+      document.getElementById('info-interes').value = `$${interesBaseGlobal.toFixed(2)}`;
+      document.getElementById('resumen-base').innerText = `$${interesBaseGlobal.toFixed(2)}`;
+
+        // 3. CALCULAR EL ESTADO Y RETRASO
+        const { estado, diasRetraso, diasTotalesGracia } = calcularEstadoYRetraso(fechaVencimientoStr);
+        
+        // 4. Aplicar Recargos y Multas
+        const recargoPorDia = 10; // $10 de recargo por día de gracia
+        const inputRecargos = document.getElementById('input-recargos');
+        const inputMulta = document.getElementById('input-multa');
+        
+        inputRecargos.value = "0.00"; 
+        inputMulta.value = "0.00"; 
+
+        // 5. Mostrar mensajes y aplicar recargos según el estado
+        document.querySelector('#refrendo-details .folio').innerText = `(Folio: ${id}) - Estado Actual: ${estado}`;
+        
+        if (estado === 'Vigente') {
+            document.getElementById('resumen-dias').innerText = "Al día (Vigente)";
+            document.getElementById('resumen-dias').style.color = 'green';
+            document.getElementById('resumen-mensaje').innerText = `Refrendo normal. Vence el ${fechaVencimientoStr}.`;
+
+        } else if (estado === 'Vencido') {
+            // Entró en días de gracia
+            // *** ESTA ES LA LÍNEA MODIFICADA: Muestra solo los días exactos de retraso ***
+            document.getElementById('resumen-dias').innerText = `${diasRetraso} días de gracia`;
+            document.getElementById('resumen-dias').style.color = 'orange';
+            
+            // Recargo: $10 por cada día dentro del periodo de gracia
+            inputRecargos.value = (diasRetraso * recargoPorDia).toFixed(2);
+            document.getElementById('resumen-mensaje').innerText = `Recargo de $${recargoPorDia} por día de gracia.`;
+
+        } else if (estado === 'Rematado') {
+            // Superó los días de gracia
+            document.getElementById('resumen-dias').innerText = `¡${diasRetraso} días de retraso!`;
+            document.getElementById('resumen-dias').style.color = 'red';
+            
+            // Multa/Recargo por pasar a remate:
+            const multaFijaRemate = montoPrestamo * 0.10; 
+            inputMulta.value = multaFijaRemate.toFixed(2);
+            document.getElementById('resumen-mensaje').innerText = `El empeño ha pasado a Remate. Aplica una multa fija por remate.`;
+        }
+
+        // 6. Habilitar botón y recalcular el total final
+        document.getElementById('btn-pagar').disabled = false;
+        
+        recalcularTotal(); 
+    }
+    
+    // 2. NUEVA FUNCIÓN: RECALCULAR TOTAL AL ESCRIBIR (Se mantiene igual)
+    window.recalcularTotal = function() {
+        const valRecargos = parseFloat(document.getElementById('input-recargos').value) || 0;
+        const valMulta = parseFloat(document.getElementById('input-multa').value) || 0;
+        
+        const granTotal = interesBaseGlobal + valRecargos + valMulta;
+
+        document.getElementById('resumen-total').innerText = `$${granTotal.toFixed(2)}`;
+        
+        const btnPagar = document.getElementById('btn-pagar');
+        btnPagar.innerText = `Cobrar $${granTotal.toFixed(2)}`;
+    }
+
+    // 3. LISTENERS PARA QUE SE ACTUALICE AL ESCRIBIR (Se mantiene igual)
+    document.getElementById('input-recargos').addEventListener('input', recalcularTotal);
+    document.getElementById('input-multa').addEventListener('input', recalcularTotal);
+
+    // --- SANITIZACIÓN: solo ENTEROS POSITIVOS ---
+    function sanitizePositiveIntegerInput(el) {
+      if (!el) return;
+      el.addEventListener('input', () => {
+        // eliminar todo lo que no sea dígito
+        let v = String(el.value).replace(/[^0-9]/g, '');
+        // evitar valor vacío que pueda impedir validación nativa; dejamos '' si nada
+        // quitar ceros a la izquierda excepto si el valor es "0"
+        if (v.length > 1 && v.startsWith('0')) {
+          v = v.replace(/^0+/, '');
+        }
+        el.value = v;
+      });
+      // prevenir pegado de texto no numérico
+      el.addEventListener('paste', (e) => {
+        const text = (e.clipboardData || window.clipboardData).getData('text');
+        if (!/^[0-9]+$/.test(text)) {
+          e.preventDefault();
+        }
+      });
+    }
+
+    // Sanitizador para decimales positivos (permite un punto decimal)
+    function sanitizePositiveDecimalInput(el) {
+      if (!el) return;
+      el.addEventListener('input', () => {
+        let v = String(el.value).replace(/[^0-9.]/g, '');
+        // permitir solo un punto
+        const parts = v.split('.');
+        if (parts.length > 2) {
+          v = parts[0] + '.' + parts.slice(1).join('');
+        }
+        // quitar ceros a la izquierda (mantener '0' si es el único)
+        if (v.length > 1 && v.startsWith('0') && !v.startsWith('0.')) {
+          v = v.replace(/^0+/, '');
+        }
+        el.value = v;
+      });
+      el.addEventListener('paste', (e) => {
+        const text = (e.clipboardData || window.clipboardData).getData('text');
+        if (!/^[0-9]*\.?[0-9]*$/.test(text)) {
+          e.preventDefault();
+        }
+      });
+    }
+
+    // Aplicar sanitización a los campos enteros del formulario
+    sanitizePositiveIntegerInput(document.getElementById('abono-refrendo'));
+    sanitizePositiveIntegerInput(document.getElementById('abono-capital'));
+    sanitizePositiveDecimalInput(document.getElementById('input-recargos'));
+    sanitizePositiveDecimalInput(document.getElementById('input-multa'));
+
+    // Helper para escapar texto usado en HTML
+    function escapeHtml(unsafe) {
+      if (!unsafe && unsafe !== 0) return '';
+      return String(unsafe)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // 4. ACTUALIZAR EL BOTÓN DE PAGAR (Sugerencia de Backend)
+    const btnPagar = document.getElementById('btn-pagar');
+    btnPagar.addEventListener('click', async (e) => {
+        e.preventDefault();
+        if (!empenoSeleccionadoId) return;
+
+        // Obtener valores finales calculados en el frontend
+        const totalPagar = parseFloat(document.getElementById('resumen-total').innerText.replace('$',''));
+        const recargos = parseFloat(document.getElementById('input-recargos').value) || 0;
+        const multa = parseFloat(document.getElementById('input-multa').value) || 0;
+
+        if(!confirm(`¿Cobrar un total de $${totalPagar.toFixed(2)}?`)) return;
+
+        try {
+            // Enviamos Recargos y Multa al backend para que registre la transacción
+            const response = await fetch(`/empenos/${empenoSeleccionadoId}/refrendo`, {
+                method: 'POST',
+                headers: { 
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    total_pagado: totalPagar,
+                    monto_recargos: recargos,
+                    monto_multa: multa,
+                    abono_refrendo: parseFloat(document.getElementById('abono-refrendo').value) || 0,
+                    abono_capital: parseFloat(document.getElementById('abono-capital').value) || 0
+                }) 
+            });
+
+            if (response.ok) {
+                alert(`✅ Pago registrado exitosamente.`);
+                window.location.reload();
+            } else {
+                alert("Error al registrar el pago.");
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Error de conexión");
+        }
+    });
+</script>
+
+  <style>
+      /* Un poco de estilo para el botón de seleccionar */
+      .btn-select {
+          background-color: #2a5a8a;
+          color: white;
+          border: none;
+          padding: 5px 10px;
+          cursor: pointer;
+          border-radius: 4px;
+      }
+      .btn-select:hover {
+          background-color: #113b64;
+      }
+      .btn-select.disabled, .btn-select:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+  </style>
+</body>
+
+</html>
