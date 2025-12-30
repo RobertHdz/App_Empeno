@@ -5,6 +5,47 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nuevo Empeño - Panel de Control</title>
   <link rel="stylesheet" href="nuev_emp.css">
+  <style>
+    /* Estilos para el Ticket Modal */
+    .ticket-modal {
+        background: white;
+        padding: 20px;
+        width: 300px;
+        margin: 100px auto;
+        text-align: center;
+        border: 1px dashed #333;
+        font-family: 'Courier New', Courier, monospace;
+    }
+    .ticket-header h3 { margin: 0; font-size: 1.2em; }
+    .ticket-body { text-align: left; margin: 15px 0; }
+    .ticket-body p { margin: 5px 0; font-size: 0.9em; }
+    .ticket-footer button { margin: 5px; padding: 5px 10px; cursor: pointer; }
+    
+    /* Ocultar el modal en pantalla normal (para que no estorbe) */
+    #modalTicket {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 10000;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* Ocultar todo menos el ticket al imprimir */
+    @media print {
+        body * { visibility: hidden; }
+        #modalTicket, #modalTicket * { visibility: visible; }
+        #modalTicket {
+            position: fixed; left: 0; top: 0; width: 100%; height: 100%;
+            background: white; display: flex; justify-content: center; align-items: flex-start; padding-top: 20px;
+            display: flex !important; /* Forzar que se vea al imprimir */
+        }
+        .ticket-modal { border: none; width: 100%; max-width: 300px; }
+        .ticket-footer { display: none; }
+        .modal-overlay { background: white; }
+    }
+  </style>
 </head>
 <body>
 
@@ -159,6 +200,7 @@
           <div class="form-actions">
             <button type="button" class="btn btn-secondary">Cancelar</button>
             <button type="submit" class="btn btn-primary">Guardar Empeño</button>
+            <button type="button" id="btn-imprimir-ticket" class="btn btn-primary" style="display:none; background-color: #17a2b8; border-color: #17a2b8;">🖨️ Imprimir Ticket</button>
           </div>
 
         </form>
@@ -168,6 +210,28 @@
   </div>
 
   <div class="overlay" id="overlay"></div>
+
+  <!-- Modal Ticket -->
+  <div id="modalTicket">
+    <div class="modal-content ticket-modal">
+      <div class="ticket-header">
+        <h3>AUTO EMPEÑO LUNA</h3>
+        <p>Comprobante de Empeño</p>
+        <p id="ticket-fecha">Fecha: --/--/----</p>
+      </div>
+      <div class="ticket-body">
+        <p><strong>Folio:</strong> <span id="ticket-folio">---</span></p>
+        <p><strong>Cliente:</strong> <span id="ticket-cliente">---</span></p>
+        <p><strong>Artículo:</strong> <span id="ticket-articulo">---</span></p>
+        <p><strong>Préstamo:</strong> <span id="ticket-monto">---</span></p>
+        <p><strong>Vencimiento:</strong> <span id="ticket-vencimiento">---</span></p>
+      </div>
+      <div class="ticket-footer">
+        <button onclick="window.print()">Imprimir</button>
+        <button onclick="document.getElementById('modalTicket').style.display = 'none'">Cerrar</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     // Lógica para CERRAR SESIÓN
@@ -355,7 +419,19 @@
             const data = await response.json();
             // Éxito: Fondo verde o mensaje bonito
             alert(`✅ ¡Empeño registrado con éxito!\nFolio: ${data.id}`);
-            window.location.href = 'clientes.html';
+            
+            // Preparar Ticket
+            document.getElementById('ticket-folio').textContent = data.id;
+            document.getElementById('ticket-cliente').textContent = getVal('cliente-nombre') + ' ' + getVal('cliente-apellidos');
+            document.getElementById('ticket-articulo').textContent = getVal('articulo-marca');
+            document.getElementById('ticket-monto').textContent = '$' + parseFloat(getVal('prestamo-monto')).toFixed(2);
+            document.getElementById('ticket-vencimiento').textContent = getVal('fecha-refrendo');
+            document.getElementById('ticket-fecha').textContent = new Date().toLocaleDateString();
+
+            // Mostrar botón de imprimir
+            document.getElementById('btn-imprimir-ticket').style.display = 'inline-block';
+            // Al hacer clic, imprimimos directamente (el CSS @media print se encarga de mostrar solo el ticket)
+            document.getElementById('btn-imprimir-ticket').onclick = () => window.print();
         } else {
             const err = await response.json();
             alert("Error del servidor: " + (err.detail || "Datos inválidos"));

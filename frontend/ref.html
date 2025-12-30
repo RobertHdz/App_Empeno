@@ -156,7 +156,7 @@
 
 
           <div class="form-actions">
-            <button type="button" class="btn btn-secondary" onclick="window.location.href='dash.html'">Cancelar</button>
+            <button type="button" class="btn btn-secondary" onclick="window.location.href='index.html'">Cancelar</button>
             <button type="submit" id="btn-pagar" class="btn btn-primary" disabled>Registrar Pago</button>
           </div>
         </div> 
@@ -185,7 +185,7 @@
       </table>
   </section>
   <div class="overlay" id="overlay"></div>
- <script>
+ <!-- <script>
     // Lógica para CERRAR SESIÓN (Se mantiene igual)
     const btnLogout = document.querySelector('.logout-button');
 
@@ -212,15 +212,22 @@
      * sea solo por fecha (medianoche).
      */
     function calcularDiasDiferencia(fechaMenorStr, fechaMayor) {
-      // 1. Crear fecha de vencimiento a medianoche (acepta formatos 'YYYY-MM-DD' o ISO)
-      let fechaMenor = new Date(fechaMenorStr);
-      if (isNaN(fechaMenor.getTime())) {
-        // intenta con sufijo T00:00:00 para formatos simples
-        fechaMenor = new Date(fechaMenorStr + 'T00:00:00');
+      // 1. Parsear manualmente YYYY-MM-DD usando parseInt para ignorar horas (ej: T00:00:00)
+      if (fechaMenorStr && fechaMenorStr.includes('-')) {
+          const parts = fechaMenorStr.split('-');
+          const year = parseInt(parts[0], 10);
+          const month = parseInt(parts[1], 10);
+          const day = parseInt(parts[2], 10); // parseInt se detiene si encuentra una 'T' o espacio
+          
+          const fechaMenor = new Date(year, month - 1, day);
+          const fechaMayorSoloDia = new Date(fechaMayor.getFullYear(), fechaMayor.getMonth(), fechaMayor.getDate());
+          const diffTime = fechaMayorSoloDia - fechaMenor;
+          return Math.floor(diffTime / (1000 * 60 * 60 * 24));
       }
+      // Fallback
+      let fechaMenor = new Date(fechaMenorStr);
+      if (isNaN(fechaMenor.getTime())) fechaMenor = new Date(fechaMenorStr + 'T00:00:00');
       fechaMenor.setHours(0,0,0,0);
-
-      // 2. Crear fecha de HOY a medianoche (solo día)
       const fechaMayorSoloDia = new Date(fechaMayor.getFullYear(), fechaMayor.getMonth(), fechaMayor.getDate());
 
         const diffTime = fechaMayorSoloDia - fechaMenor;
@@ -308,24 +315,20 @@
                       const btn = document.createElement('button');
                       btn.className = 'btn-select';
                       btn.textContent = 'Seleccionar';
-                      if (estado === 'Vencido') {
-                        btn.addEventListener('click', () => seleccionarEmpeno(
-                          empeno.id,
-                          empeno.fecha_vencimiento,
-                          // asegurar que monto sea numérico
-                          Number(empeno.monto_prestamo),
-                          nombreCompleto,
-                          empeno.marca_modelo,
-                          // pasar datos de cliente opcionales si existen
-                          cliente.telefono || '',
-                          cliente.direccion || ''
-                        ));
-                      } else {
-                        // Vigente -> no se puede refrendar: mostrar botón deshabilitado
-                        btn.disabled = true;
-                        btn.classList.add('disabled');
-                        btn.title = 'No se puede refrendar cuando está Vigente';
-                      }
+                      
+                      // Habilitamos siempre el botón, incluso si es Vigente, para permitir refrendos anticipados
+                      btn.addEventListener('click', () => seleccionarEmpeno(
+                        empeno.id,
+                        empeno.fecha_vencimiento,
+                        // asegurar que monto sea numérico
+                        Number(empeno.monto_prestamo),
+                        nombreCompleto,
+                        empeno.marca_modelo,
+                        // pasar datos de cliente opcionales si existen
+                        cliente.telefono || '',
+                        cliente.direccion || ''
+                      ));
+                      
                       tdBtn.appendChild(btn);
 
                       // Columna: Folio

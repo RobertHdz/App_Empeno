@@ -165,7 +165,7 @@
           </div>
 
           <div class="form-actions">
-            <button type="button" class="btn btn-secondary" onclick="window.location.href='dash.html'">Cancelar</button>
+            <button type="button" class="btn btn-secondary" onclick="window.location.href='index.html'">Cancelar</button>
             <button type="submit" id="btn-pagar" class="btn btn-primary" disabled>Confirmar Desempeño</button>
           </div>
         </div> 
@@ -206,8 +206,17 @@
      * evitando el error del "día extra" (00:00:00 vs 23:59:59).
      */
     function calcularDiasDiferencia(fechaMenorStr, fechaMayor) {
-        // 1. Crear fecha de vencimiento a medianoche
-        const fechaMenor = new Date(fechaMenorStr + 'T00:00:00'); 
+        // 1. Parsear manualmente YYYY-MM-DD para asegurar hora local y robustez
+        let fechaMenor;
+        if (fechaMenorStr && fechaMenorStr.includes('-')) {
+            const parts = fechaMenorStr.split('-');
+            const y = parseInt(parts[0], 10);
+            const m = parseInt(parts[1], 10);
+            const d = parseInt(parts[2], 10);
+            fechaMenor = new Date(y, m - 1, d);
+        } else {
+            fechaMenor = new Date(fechaMenorStr + 'T00:00:00');
+        }
         
         // 2. Crear fecha de HOY a medianoche (solo día)
         const fechaMayorSoloDia = new Date(fechaMayor.getFullYear(), fechaMayor.getMonth(), fechaMayor.getDate());

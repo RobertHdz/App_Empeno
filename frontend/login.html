@@ -77,14 +77,38 @@
 
 
       <form id="register-form" class="login-form hidden">
-        <h2>Registrar Empleado</h2>
+        <h2>Crear Cuenta</h2>
         <p style="font-size: 0.85em; color: #666; margin-bottom: 15px;">
-            Crea un usuario nuevo para el sistema.
+            Regístrate para acceder al sistema.
         </p>
 
         <div class="input-group">
-            <label>Nombre Completo</label>
-            <input type="text" id="reg-nombre" required placeholder="Ej: Juan Pérez">
+            <label>¿Qué eres?</label>
+            <select id="reg-tipo" onchange="toggleAdminPass()">
+                <option value="cliente">Soy Cliente</option>
+                <option value="empleado">Soy Empleado / Admin</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>Nombre(s)</label>
+            <input type="text" id="reg-nombre" required placeholder="Ej: Juan">
+        </div>
+
+        <!-- Campos exclusivos para Clientes -->
+        <div id="campos-cliente">
+            <div class="input-group">
+                <label>Apellidos</label>
+                <input type="text" id="reg-apellidos" placeholder="Ej: Pérez López">
+            </div>
+            <div class="input-group">
+                <label>Dirección</label>
+                <input type="text" id="reg-direccion" placeholder="Calle, Número, Colonia">
+            </div>
+            <div class="input-group">
+                <label>Teléfono</label>
+                <input type="text" id="reg-telefono" placeholder="10 dígitos">
+            </div>
         </div>
 
         <div class="input-group">
@@ -99,9 +123,9 @@
 
         <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
 
-        <div class="input-group master-pass-group">
+        <div class="input-group master-pass-group" id="admin-auth-group" style="display: none;">
             <label style="color: #d9534f; font-weight:bold;">🔐 Contraseña de Admin</label>
-            <input type="password" id="reg-admin-pass" required placeholder="Tu contraseña actual para confirmar">
+            <input type="password" id="reg-admin-pass" placeholder="Clave maestra para autorizar">
             <small style="font-size: 0.7em; color: #888;">Necesaria para autorizar el registro.</small>
         </div>
 
@@ -119,10 +143,25 @@
 
   <script>
     // --- LÓGICA DE INTERFAZ (SWAP) ---
+    function toggleAdminPass() {
+        const tipo = document.getElementById('reg-tipo').value;
+        const adminGroup = document.getElementById('admin-auth-group');
+        const camposCliente = document.getElementById('campos-cliente');
+        
+        if (tipo === 'empleado') {
+            adminGroup.style.display = 'block';
+            camposCliente.style.display = 'none';
+        } else {
+            adminGroup.style.display = 'none';
+            camposCliente.style.display = 'block';
+        }
+    }
+
     function mostrarRegistro() {
         document.getElementById('login-form').classList.add('hidden');
         document.getElementById('register-form').classList.remove('hidden');
         document.getElementById('reg-error-message').style.display = 'none';
+        toggleAdminPass(); // Inicializar estado correcto
     }
 
     function mostrarLogin() {
@@ -154,7 +193,13 @@
         if (response.ok) {
           const result = await response.json();
           localStorage.setItem('token_auto_empeno', result.access_token);
-          window.location.href = 'dash.html';
+          
+          // REDIRECCIÓN SEGÚN ROL
+          if (result.rol === 'cliente') {
+              window.location.href = 'dashboard_cliente.html';
+          } else {
+              window.location.href = 'index.html'; // Dashboard de Admin/Empleado
+          }
         } else {
           errorMessage.innerText = 'Usuario o contraseña incorrectos.';
           errorMessage.style.display = 'block';
@@ -173,31 +218,61 @@
         e.preventDefault();
         
         // Recogemos datos
+        const tipo = document.getElementById('reg-tipo').value;
         const nombre = document.getElementById('reg-nombre').value;
+        const apellidos = document.getElementById('reg-apellidos').value;
+        const direccion = document.getElementById('reg-direccion').value;
+        const telefono = document.getElementById('reg-telefono').value;
         const usuario = document.getElementById('reg-usuario').value;
         const password = document.getElementById('reg-pass').value;
         const adminAuth = document.getElementById('reg-admin-pass').value;
 
         // Validar que no estén vacíos
-        if(!nombre || !usuario || !password || !adminAuth) {
+        if(!nombre || !usuario || !password) {
             regErrorMessage.innerText = "Todos los campos son obligatorios";
             regErrorMessage.style.display = "block";
             return;
         }
 
-        const payload = {
-            nuevo_usuario: {
+        let url = '';
+        let payload = {};
+
+        if (tipo === 'cliente') {
+            if(!apellidos || !direccion || !telefono) {
+                regErrorMessage.innerText = "Por favor completa tu dirección y teléfono";
+                regErrorMessage.style.display = "block";
+                return;
+            }
+            url = '/registrar-cliente';
+            payload = {
                 usuario: usuario,
                 password: password,
-                nombre_completo: nombre,
-                rol: "empleado" // Por defecto creamos empleados
-            },
-            admin_password: adminAuth // Enviamos la contraseña del jefe para validar
-        };
+                nombre: nombre,
+                apellidos: apellidos,
+                direccion: direccion,
+                telefono: telefono
+            };
+        } else {
+            // Es empleado, validamos clave maestra
+            if (!adminAuth) {
+                regErrorMessage.innerText = "Se requiere contraseña de Admin para registrar empleados.";
+                regErrorMessage.style.display = "block";
+                return;
+            }
+            url = '/registrar-empleado-seguro';
+            payload = {
+                nuevo_usuario: {
+                    usuario: usuario,
+                    password: password,
+                    nombre_completo: nombre,
+                    rol: "empleado"
+                },
+                admin_password: adminAuth
+            };
+        }
 
         try {
-            // Nota: Este endpoint lo crearemos en el siguiente paso en Python
-            const res = await fetch('/registrar-empleado-seguro', {
+            const res = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
