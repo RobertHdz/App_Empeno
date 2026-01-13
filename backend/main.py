@@ -7,6 +7,7 @@ from typing import List
 from datetime import timedelta, date
 import time
 from sqlalchemy.exc import OperationalError
+import unicodedata
 import os
 
 from . import models, database, auth, schemas
@@ -14,7 +15,9 @@ from . import models, database, auth, schemas
 # --- FUNCIONES DE LIMPIEZA (SANITIZACIÓN) ---
 def limpiar_texto(s: str):
     if not s: return ""
-    return s.strip().upper() # Convertimos a mayúsculas para evitar errores de "Juan" vs "juan"
+    # Normalizar para quitar acentos (Pérez -> Perez) y convertir a mayúsculas
+    s = unicodedata.normalize('NFKD', s).encode('ASCII', 'ignore').decode('utf-8')
+    return s.strip().upper()
 
 def limpiar_telefono(s: str):
     if not s: return ""
@@ -307,9 +310,10 @@ async def debug_clientes(db: Session = Depends(database.get_db)):
     for c in clientes:
         resultado.append({
             "id": c.id,
-            "nombre": c.nombre,
-            "apellidos": c.apellidos,
-            "telefono": c.telefono,
+            "nombre_raw": c.nombre,
+            "nombre_clean": limpiar_texto(c.nombre),
+            "telefono_raw": c.telefono,
+            "telefono_clean": limpiar_telefono(c.telefono),
             "user_id": c.user_id, # Si esto es null, no tiene usuario. Si tiene numero, ya tiene dueño.
             "empenos_count": len(c.empenos)
         })
@@ -338,6 +342,65 @@ async def debug_generar_empeno(db: Session = Depends(database.get_db)):
     db.add(dummy_empeno)
     db.commit()
     return {"mensaje": f"✅ Empeño de prueba creado para el cliente: {cliente.nombre} (Tel: {cliente.telefono})"}
+
+# --- HERRAMIENTA DE CORRECCIÓN DE DUPLICADOS ---
+@app.get("/debug/corregir_duplicados")
+async def corregir_duplicados(db: Session = Depends(database.get_db)):
+    # 1. Obtener clientes con usuario (Los "Oficiales")
+    clientes_con_usuario = db.query(models.Cliente).filter(models.Cliente.user_id != None).all()
+    
+    # 2. Obtener clientes sin usuario (Los "Huérfanos" que tienen los empeños)
+    clientes_huerfanos = db.query(models.Cliente).filter(models.Cliente.user_id == None).all()
+    
+    log = []
+    cambios = False
+    procesados = set() # Para no intentar borrar el mismo dos veces
+
+    for oficial in clientes_con_usuario:
+        oficial_tel = limpiar_telefono(oficial.telefono)
+        oficial_nom = limpiar_texto(oficial.nombre)
+        oficial_ape = limpiar_texto(oficial.apellidos)
+        
+        for huerfano in clientes_huerfanos:
+            if huerfano.id in procesados: continue
+
+            match = False
+            razon = ""
+            
+            # A. Comparar Teléfonos (Prioridad)
+            huerfano_tel = limpiar_telefono(huerfano.telefono)
+            if oficial_tel and huerfano_tel and oficial_tel == huerfano_tel:
+                match = True
+                razon = f"Teléfono coincidente ({oficial_tel})"
+            
+            # B. Comparar Nombres (Si no hubo match por teléfono)
+            if not match:
+                huerfano_nom = limpiar_texto(huerfano.nombre)
+                huerfano_ape = limpiar_texto(huerfano.apellidos)
+                if oficial_nom and oficial_ape and oficial_nom == huerfano_nom and oficial_ape == huerfano_ape:
+                    match = True
+                    razon = f"Nombre coincidente ({oficial_nom} {oficial_ape})"
+            
+            if match:
+                # Mover empeños del huérfano al oficial
+                count = 0
+                for emp in huerfano.empenos:
+                    emp.cliente_id = oficial.id
+                    count += 1
+                
+                log.append(f"🔧 FUSIONADO: Cliente Huérfano ID {huerfano.id} -> Oficial ID {oficial.id}. Razón: {razon}. Empeños movidos: {count}")
+                db.delete(huerfano)
+                procesados.add(huerfano.id)
+                cambios = True
+    
+    if cambios: 
+        db.commit()
+        return {"mensaje": "Proceso de corrección terminado con ÉXITO", "detalles": log}
+    
+    return {
+        "mensaje": "No se encontraron duplicados automáticos.", 
+        "diagnostico": f"Se analizaron {len(clientes_con_usuario)} cuentas oficiales y {len(clientes_huerfanos)} perfiles huérfanos. Verifica manualmente en /debug/clientes si los datos coinciden."
+    }
 
 # Ruta raíz redirige al login
 from fastapi.responses import RedirectResponse
