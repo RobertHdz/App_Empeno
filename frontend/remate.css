@@ -826,6 +826,15 @@ table tbody tr:nth-child(even) {
   background-color: #dc3545; 
 }
 
+/* 6. Estado Días de Gracia (Naranja) */
+.status-días-de-gracia,
+.status-dias-de-gracia,
+.status-días, 
+.status-dias {
+    background-color: #fd7e14; 
+    color: white;
+}
+
 /* =======================================================
    10. AJUSTES RESPONSIVE (EXISTENTES)
 ========================================================== */

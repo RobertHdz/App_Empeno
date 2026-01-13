@@ -900,6 +900,15 @@
 }
 /* ¡Eliminada la regla duplicada que causaba el color gris! */
 
+/* 6. Estado Días de Gracia (Naranja - Alerta) */
+.status-días-de-gracia,
+.status-dias-de-gracia,
+.status-días, 
+.status-dias {
+    background-color: #fd7e14; 
+    color: white;
+}
+
 
 
   /* =======================================================

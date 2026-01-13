@@ -21,6 +21,34 @@ def limpiar_telefono(s: str):
     # Quita espacios, guiones y paréntesis
     return s.replace(" ", "").replace("-", "").replace("(", "").replace(")", "").strip()
 
+# --- FUNCIÓN PARA ACTUALIZAR ESTADOS AUTOMÁTICAMENTE ---
+def actualizar_estados_empenos(db: Session):
+    hoy = date.today()
+    # Buscamos empeños activos (Vigente o Días de Gracia) para verificar si cambian
+    empenos_activos = db.query(models.Empeno).filter(models.Empeno.estado.in_(["Vigente", "Días de Gracia"])).all()
+    
+    cambios = False
+    for empeno in empenos_activos:
+        fecha_venc = empeno.fecha_vencimiento
+        fecha_limite_gracia = fecha_venc + timedelta(days=5)
+        
+        # 1. Verificar si ya pasó el tiempo de gracia (Vencimiento + 5 días) -> REMATE
+        if hoy > fecha_limite_gracia:
+            if empeno.estado != "Remate":
+                print(f"🔄 AUTO-CORRECCIÓN: Empeño {empeno.id} venció gracia el {fecha_limite_gracia}. Pasando a REMATE.")
+                empeno.estado = "Remate"
+                cambios = True
+        
+        # 2. Verificar si está vencido pero dentro de los días de gracia -> DÍAS DE GRACIA
+        elif hoy > fecha_venc:
+            if empeno.estado != "Días de Gracia":
+                print(f"⚠️ AUTO-CORRECCIÓN: Empeño {empeno.id} venció el {fecha_venc}. Entrando a DÍAS DE GRACIA.")
+                empeno.estado = "Días de Gracia"
+                cambios = True
+            
+    if cambios:
+        db.commit()
+
 app = FastAPI()
 
 # CORS
@@ -221,11 +249,16 @@ async def crear_empeno(payload: schemas.NuevoEmpenoSchema, db: Session = Depends
 
 @app.get("/empenos/todos", response_model=List[schemas.EmpenoResponse])
 async def leer_empenos(db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
+    # Actualizamos estados antes de devolver la lista para que el usuario vea la info real
+    actualizar_estados_empenos(db)
     return db.query(models.Empeno).all()
 
 @app.get("/empenos/mis-empenos", response_model=List[schemas.EmpenoResponse])
 async def mis_empenos(db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
     print(f"🔍 MIS_EMPENOS: Usuario ID {current_user.id} ({current_user.username}) solicitando empeños.")
+    # Actualizamos estados antes de devolver la lista
+    actualizar_estados_empenos(db)
+    
     # Buscar al cliente conectado usando su ID de usuario
     cliente = db.query(models.Cliente).filter(models.Cliente.user_id == current_user.id).first()
     if not cliente:
