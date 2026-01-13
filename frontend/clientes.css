@@ -903,6 +903,7 @@
 /* 6. Estado Días de Gracia (Naranja - Alerta) */
 .status-días-de-gracia,
 .status-dias-de-gracia,
+.status-Dias_Gracia,
 .status-días, 
 .status-dias {
     background-color: #fd7e14; 

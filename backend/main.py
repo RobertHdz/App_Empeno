@@ -24,10 +24,18 @@ def limpiar_telefono(s: str):
 # --- FUNCIÓN PARA ACTUALIZAR ESTADOS AUTOMÁTICAMENTE ---
 def actualizar_estados_empenos(db: Session):
     hoy = date.today()
-    # Buscamos empeños activos (Vigente o Días de Gracia) para verificar si cambian
-    empenos_activos = db.query(models.Empeno).filter(models.Empeno.estado.in_(["Vigente", "Días de Gracia"])).all()
     
     cambios = False
+    
+    # 0. CORRECCIÓN: Renombrar "Días de Gracia" (con espacios) a "Dias_Gracia" (seguro)
+    legacy_items = db.query(models.Empeno).filter(models.Empeno.estado == "Días de Gracia").all()
+    for item in legacy_items:
+        item.estado = "Dias_Gracia"
+        cambios = True
+
+    # Buscamos empeños activos para verificar si cambian
+    empenos_activos = db.query(models.Empeno).filter(models.Empeno.estado.in_(["Vigente", "Dias_Gracia"])).all()
+    
     for empeno in empenos_activos:
         fecha_venc = empeno.fecha_vencimiento
         fecha_limite_gracia = fecha_venc + timedelta(days=5)
@@ -39,11 +47,11 @@ def actualizar_estados_empenos(db: Session):
                 empeno.estado = "Remate"
                 cambios = True
         
-        # 2. Verificar si está vencido pero dentro de los días de gracia -> DÍAS DE GRACIA
+        # 2. Verificar si está vencido pero dentro de los días de gracia -> Dias_Gracia
         elif hoy > fecha_venc:
-            if empeno.estado != "Días de Gracia":
+            if empeno.estado != "Dias_Gracia":
                 print(f"⚠️ AUTO-CORRECCIÓN: Empeño {empeno.id} venció el {fecha_venc}. Entrando a DÍAS DE GRACIA.")
-                empeno.estado = "Días de Gracia"
+                empeno.estado = "Dias_Gracia"
                 cambios = True
             
     if cambios:

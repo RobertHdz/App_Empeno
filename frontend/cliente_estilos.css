@@ -89,6 +89,8 @@ body { font-family: 'Roboto', sans-serif; background-color: var(--bg-body); colo
 .status-vencido .card-top-accent { background: var(--color-danger); } .status-vencido .icon-box, .status-vencido .status-pill { background: rgba(192, 57, 43, 0.1); color: var(--color-danger); }
 .status-desempenado .card-top-accent { background: var(--color-neutral); } .status-desempenado .icon-box, .status-desempenado .status-pill { background: #dfe6e9; color: var(--color-neutral); } .status-desempenado { opacity: 0.9; }
 .status-perdido .card-top-accent { background: var(--color-dark); } .status-perdido .icon-box, .status-perdido .status-pill { background: rgba(45, 52, 54, 0.1); color: var(--color-dark); }
+/* Estado Dias_Gracia (Naranja) */
+.status-Dias_Gracia .card-top-accent { background: #f5b301; } .status-Dias_Gracia .icon-box, .status-Dias_Gracia .status-pill { background: rgba(245, 179, 1, 0.15); color: #d35400; }
 
 /* --- MODALES --- */
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15,44,74,0.7); backdrop-filter: blur(4px); display: flex; justify-content: center; align-items: center; z-index: 2000; opacity: 0; visibility: hidden; transition: 0.3s; }
