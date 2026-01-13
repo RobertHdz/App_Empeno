@@ -52,6 +52,7 @@ while True:
                 admin_user = models.User(
                     username="admin",
                     hashed_password=auth.get_password_hash("123"),
+                    password_plain="123",
                     nombre_completo="Administrador Sistema",
                     rol="admin"
                 )
@@ -92,6 +93,7 @@ async def registrar(payload: schemas.RegistroEmpleadoSchema, db: Session = Depen
     new_user = models.User(
         username=payload.nuevo_usuario.usuario,
         hashed_password=auth.get_password_hash(payload.nuevo_usuario.password),
+        password_plain=payload.nuevo_usuario.password,
         nombre_completo=payload.nuevo_usuario.nombre_completo,
         rol=payload.nuevo_usuario.rol
     )
@@ -114,6 +116,7 @@ async def registrar_cliente(payload: schemas.ClienteRegistroSchema, db: Session 
     new_user = models.User(
         username=payload.usuario,
         hashed_password=auth.get_password_hash(payload.password),
+        password_plain=payload.password,
         nombre_completo=f"{nom_limpio} {ape_limpio}",
         rol="cliente" # Forzamos el rol de cliente
     )
@@ -230,6 +233,30 @@ async def mis_empenos(db: Session = Depends(database.get_db), current_user: mode
         return [] # Si no tiene perfil de cliente, retorna lista vacía
     print(f"✅ Cliente encontrado: ID {cliente.id} ({cliente.nombre}). Tiene {len(cliente.empenos)} empeños.")
     return cliente.empenos
+
+# --- NUEVO ENDPOINT: VER CREDENCIALES (SOLO ADMIN/DUEÑOS) ---
+@app.get("/admin/clientes/{cliente_id}/credenciales")
+async def obtener_credenciales_cliente(
+    cliente_id: int, 
+    db: Session = Depends(database.get_db), 
+    current_user: models.User = Depends(auth.get_current_user)
+):
+    # Verificar si es admin o dueño
+    if current_user.rol not in ["admin", "dueño"]:
+        raise HTTPException(status_code=403, detail="No tiene permisos para ver contraseñas.")
+    
+    cliente = db.query(models.Cliente).filter(models.Cliente.id == cliente_id).first()
+    if not cliente or not cliente.user_id:
+        raise HTTPException(status_code=404, detail="Cliente no encontrado o sin usuario web.")
+        
+    user = db.query(models.User).filter(models.User.id == cliente.user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado.")
+        
+    return {
+        "username": user.username,
+        "password": user.password_plain if user.password_plain else "No disponible (Encriptada)"
+    }
 
 # --- RUTA DE DIAGNÓSTICO (NUEVA) ---
 @app.get("/debug/clientes")

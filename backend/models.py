@@ -8,6 +8,8 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String(50), unique=True, index=True)
     hashed_password = Column(String(255))
+    # Campo para almacenar contraseña visible (Solo para administradores/dueños)
+    password_plain = Column(String(255), nullable=True)
     nombre_completo = Column(String(100))
     rol = Column(String(20), default="empleado")
 
