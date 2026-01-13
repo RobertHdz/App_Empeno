@@ -815,6 +815,11 @@ table tbody tr:nth-child(even) {
   background-color: #6c757d; /* Gris Plomo */
   color: white;
 }
+.status-Remate,
+.status-remate {
+  background-color: #6c757d; /* Gris Plomo */
+  color: white;
+}
 
 /* 4. ESTADO DESEMPEÑADO (Azul corporativo) */
 .status-desempenado {

@@ -893,6 +893,10 @@
 .status-rematado {
     background-color: #6c757d; 
 }
+.status-Remate,
+.status-remate {
+    background-color: #6c757d; 
+}
 
 /* 5. Estado Vendido (Marrón/Café - Liquidación final) */
 .status-vendido {
