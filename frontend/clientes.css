@@ -883,6 +883,10 @@
 .status-desempenado { 
     background-color: #113b64; /* Usamos el color de tu var(--color-azul-oscuro) */
 }
+.status-Desempeñado,
+.status-desempeñado {
+    background-color: #113b64;
+}
 
 /* 3. Estado Vencido (Rojo - Alerta) */
 .status-vencido {
@@ -899,7 +903,8 @@
 }
 
 /* 5. Estado Vendido (Marrón/Café - Liquidación final) */
-.status-vendido {
+.status-vendido,
+.status-Vendido {
     background-color: #795548; 
 }
 /* ¡Eliminada la regla duplicada que causaba el color gris! */

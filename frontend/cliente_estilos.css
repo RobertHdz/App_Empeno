@@ -84,10 +84,18 @@ body { font-family: 'Roboto', sans-serif; background-color: var(--bg-body); colo
 .span-2 { grid-column: span 2; }
 
 /* ESTADOS */
-.status-vigente .card-top-accent { background: var(--color-success); } .status-vigente .icon-box, .status-vigente .status-pill { background: rgba(0, 184, 148, 0.1); color: var(--color-success); }
+.status-vigente .card-top-accent, .status-Vigente .card-top-accent { background: var(--color-success); } 
+.status-vigente .icon-box, .status-vigente .status-pill, .status-Vigente .icon-box, .status-Vigente .status-pill { background: rgba(0, 184, 148, 0.1); color: var(--color-success); }
+
 .status-warning .card-top-accent { background: var(--color-warning); } .status-warning .icon-box, .status-warning .status-pill { background: rgba(211, 84, 0, 0.1); color: var(--color-warning); }
-.status-vencido .card-top-accent { background: var(--color-danger); } .status-vencido .icon-box, .status-vencido .status-pill { background: rgba(192, 57, 43, 0.1); color: var(--color-danger); }
-.status-desempenado .card-top-accent { background: var(--color-neutral); } .status-desempenado .icon-box, .status-desempenado .status-pill { background: #dfe6e9; color: var(--color-neutral); } .status-desempenado { opacity: 0.9; }
+
+.status-vencido .card-top-accent, .status-Vencido .card-top-accent { background: var(--color-danger); } 
+.status-vencido .icon-box, .status-vencido .status-pill, .status-Vencido .icon-box, .status-Vencido .status-pill { background: rgba(192, 57, 43, 0.1); color: var(--color-danger); }
+
+.status-desempenado .card-top-accent, .status-Desempeñado .card-top-accent, .status-desempeñado .card-top-accent { background: var(--color-neutral); } 
+.status-desempenado .icon-box, .status-desempenado .status-pill, .status-Desempeñado .icon-box, .status-Desempeñado .status-pill, .status-desempeñado .icon-box, .status-desempeñado .status-pill { background: #dfe6e9; color: var(--color-neutral); } 
+.status-desempenado, .status-Desempeñado, .status-desempeñado { opacity: 0.9; }
+
 .status-perdido .card-top-accent { background: var(--color-dark); } .status-perdido .icon-box, .status-perdido .status-pill { background: rgba(45, 52, 54, 0.1); color: var(--color-dark); }
 /* Estado Dias_Gracia (Naranja) */
 .status-Dias_Gracia .card-top-accent, .status-dias_gracia .card-top-accent { background: #f5b301; } 
@@ -96,6 +104,10 @@ body { font-family: 'Roboto', sans-serif; background-color: var(--bg-body); colo
 /* Estado Remate (Gris - Artículos perdidos/en venta) */
 .status-Remate .card-top-accent, .status-remate .card-top-accent { background: #6c757d; } 
 .status-Remate .icon-box, .status-Remate .status-pill, .status-remate .icon-box, .status-remate .status-pill { background: rgba(108, 117, 125, 0.15); color: #6c757d; }
+
+/* Estado Vendido (Café - Liquidación final) */
+.status-vendido .card-top-accent, .status-Vendido .card-top-accent { background: #795548; } 
+.status-vendido .icon-box, .status-vendido .status-pill, .status-Vendido .icon-box, .status-Vendido .status-pill { background: rgba(121, 85, 72, 0.15); color: #795548; }
 
 /* --- MODALES --- */
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15,44,74,0.7); backdrop-filter: blur(4px); display: flex; justify-content: center; align-items: center; z-index: 2000; opacity: 0; visibility: hidden; transition: 0.3s; }

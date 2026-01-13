@@ -840,9 +840,13 @@ table tbody tr:nth-child(even) {
 .status-desempeñado {
   background-color: #113b64 !important; /* Cambiado a Azul Oscuro para que destaque */
 }
+.status-Desempeñado,
+.status-desempenado {
+  background-color: #113b64 !important;
+}
 
 /* 4. Estado Vendido (Café) */
-.status-vendido {
+.status-vendido, .status-Vendido {
   background-color: #795548; /* Café/Marrón solicitado */
 }
 
