@@ -40,11 +40,11 @@ body { font-family: 'Roboto', sans-serif; background-color: var(--bg-body); colo
 /* CARDS */
 .section-title { font-size: 1.4rem; color: var(--brand-dark); border-left: 5px solid var(--brand-gold); padding-left: 15px; margin-bottom: 1.5rem; }
 .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 2rem; }
-.pawn-card { background: white; border-radius: 16px; box-shadow: var(--shadow-card); overflow: hidden; transition: 0.3s; border: 1px solid #f0f0f0; position: relative; }
+.pawn-card { background: white; border-radius: 16px; box-shadow: var(--shadow-card); overflow: hidden; transition: 0.3s; border: 1px solid #f0f0f0; position: relative; min-height: 200px; /* Altura mínima para evitar colapso */ }
 .pawn-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-hover); }
-.card-top-accent { height: 5px; width: 100%; }
+.card-top-accent { height: 5px; width: 100%; background-color: #bdc3c7; /* Color por defecto (Gris) si falla el estado */ }
 .card-header { padding: 1.2rem; display: flex; align-items: flex-start; gap: 12px; }
-.icon-box { min-width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+.icon-box { min-width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; background-color: #ecf0f1; color: #7f8c8d; /* Color por defecto */ }
 .header-info { flex: 1; }
 .article-title { font-size: 1.1rem; font-weight: 700; color: var(--brand-dark); line-height: 1.2; margin-bottom: 4px; }
 .boleta-tag { font-size: 0.75rem; color: #7f8c8d; background: #f1f2f6; padding: 2px 8px; border-radius: 4px; }
@@ -83,31 +83,154 @@ body { font-family: 'Roboto', sans-serif; background-color: var(--bg-body); colo
 .danger-border { border-color: rgba(192, 57, 43, 0.3); color: var(--color-dark); }
 .span-2 { grid-column: span 2; }
 
-/* ESTADOS */
-.status-vigente .card-top-accent, .status-Vigente .card-top-accent { background: var(--color-success); } 
-.status-vigente .icon-box, .status-vigente .status-pill, .status-Vigente .icon-box, .status-Vigente .status-pill { background: rgba(0, 184, 148, 0.1); color: var(--color-success); }
+/* ================= ESTADOS (CORREGIDO Y ROBUSTO) ================= */
 
-.status-warning .card-top-accent { background: var(--color-warning); } .status-warning .icon-box, .status-warning .status-pill { background: rgba(211, 84, 0, 0.1); color: var(--color-warning); }
+/* 1. VIGENTE (Verde) */
+.status-vigente .card-top-accent, .status-Vigente .card-top-accent, .status-VIGENTE .card-top-accent,
+.Vigente .card-top-accent { background: var(--color-success); } 
 
-.status-vencido .card-top-accent, .status-Vencido .card-top-accent { background: var(--color-danger); } 
-.status-vencido .icon-box, .status-vencido .status-pill, .status-Vencido .icon-box, .status-Vencido .status-pill { background: rgba(192, 57, 43, 0.1); color: var(--color-danger); }
+.status-vigente .icon-box, .status-vigente .status-pill, 
+.status-Vigente .icon-box, .status-Vigente .status-pill,
+.status-VIGENTE .icon-box, .status-VIGENTE .status-pill,
+.Vigente .icon-box, .Vigente .status-pill { background: rgba(0, 184, 148, 0.1); color: var(--color-success); }
 
-.status-desempenado .card-top-accent, .status-Desempeñado .card-top-accent, .status-desempeñado .card-top-accent { background: var(--color-neutral); } 
-.status-desempenado .icon-box, .status-desempenado .status-pill, .status-Desempeñado .icon-box, .status-Desempeñado .status-pill, .status-desempeñado .icon-box, .status-desempeñado .status-pill { background: #dfe6e9; color: var(--color-neutral); } 
-.status-desempenado, .status-Desempeñado, .status-desempeñado { opacity: 0.9; }
+/* 2. VENCIDO (Rojo) */
+.status-vencido .card-top-accent, .status-Vencido .card-top-accent, .status-VENCIDO .card-top-accent,
+.Vencido .card-top-accent { background: var(--color-danger); } 
+
+.status-vencido .icon-box, .status-vencido .status-pill, 
+.status-Vencido .icon-box, .status-Vencido .status-pill,
+.status-VENCIDO .icon-box, .status-VENCIDO .status-pill,
+.Vencido .icon-box, .Vencido .status-pill { background: rgba(192, 57, 43, 0.1); color: var(--color-danger); }
+
+/* 3. DESEMPEÑADO (Azul) */
+.status-desempenado .card-top-accent, .status-Desempeñado .card-top-accent, .status-desempeñado .card-top-accent, .status-Desempenado .card-top-accent, .status-DESEMPEÑADO .card-top-accent,
+.Desempeñado .card-top-accent, .Desempenado .card-top-accent { background: #113b64; } 
+
+.status-desempenado .icon-box, .status-desempenado .status-pill, 
+.status-Desempeñado .icon-box, .status-Desempeñado .status-pill, 
+.status-desempeñado .icon-box, .status-desempeñado .status-pill, 
+.status-Desempenado .icon-box, .status-Desempenado .status-pill,
+.status-DESEMPEÑADO .icon-box, .status-DESEMPEÑADO .status-pill,
+.Desempeñado .icon-box, .Desempeñado .status-pill { background: rgba(17, 59, 100, 0.15); color: #113b64; } 
+.status-desempenado, .status-Desempeñado, .status-desempeñado, .status-Desempenado, .Desempeñado { opacity: 1; }
+
+/* 4. DIAS DE GRACIA (Naranja) */
+/* Cubrimos todas las variaciones posibles: con guion bajo, guion medio, espacios, mayusculas */
+.status-Dias_Gracia .card-top-accent, .status-dias_gracia .card-top-accent, 
+.status-Dias-Gracia .card-top-accent, .status-dias-gracia .card-top-accent,
+.status-Dias .card-top-accent, .status-dias .card-top-accent,
+.status-días-de-gracia .card-top-accent, .status-dias-de-gracia .card-top-accent,
+.Dias_Gracia .card-top-accent { background: #f5b301; } 
+
+.status-Dias_Gracia .icon-box, .status-Dias_Gracia .status-pill, 
+.status-dias_gracia .icon-box, .status-dias_gracia .status-pill,
+.status-Dias-Gracia .icon-box, .status-Dias-Gracia .status-pill,
+.status-dias-gracia .icon-box, .status-dias-gracia .status-pill,
+.status-Dias .icon-box, .status-Dias .status-pill, 
+.status-dias .icon-box, .status-dias .status-pill,
+.status-días-de-gracia .icon-box, .status-días-de-gracia .status-pill, 
+.status-dias-de-gracia .icon-box, .status-dias-de-gracia .status-pill,
+.Dias_Gracia .icon-box, .Dias_Gracia .status-pill { background: rgba(245, 179, 1, 0.15); color: #d35400; }
+
+/* 5. REMATE / EN VENTA (Gris) */
+.status-Remate .card-top-accent, .status-remate .card-top-accent, .status-REMATE .card-top-accent,
+.status-Rematado .card-top-accent, .status-rematado .card-top-accent, 
+.status-en-venta .card-top-accent, .status-En_Venta .card-top-accent,
+.Remate .card-top-accent, .Rematado .card-top-accent { background: #6c757d; } 
+
+.status-Remate .icon-box, .status-Remate .status-pill, 
+.status-remate .icon-box, .status-remate .status-pill, 
+.status-REMATE .icon-box, .status-REMATE .status-pill,
+.status-Rematado .icon-box, .status-Rematado .status-pill, 
+.status-rematado .icon-box, .status-rematado .status-pill,
+.status-en-venta .icon-box, .status-en-venta .status-pill,
+.status-En_Venta .icon-box, .status-En_Venta .status-pill,
+.Remate .icon-box, .Remate .status-pill { background: rgba(108, 117, 125, 0.15); color: #6c757d; }
+
+/* 6. VENDIDO (Café) */
+.status-vendido .card-top-accent, .status-Vendido .card-top-accent, .status-VENDIDO .card-top-accent,
+.Vendido .card-top-accent { background: #795548; } 
+
+.status-vendido .icon-box, .status-vendido .status-pill, 
+.status-Vendido .icon-box, .status-Vendido .status-pill, 
+.status-VENDIDO .icon-box, .status-VENDIDO .status-pill,
+.Vendido .icon-box, .Vendido .status-pill { background: rgba(121, 85, 72, 0.15); color: #795548; }
 
 .status-perdido .card-top-accent { background: var(--color-dark); } .status-perdido .icon-box, .status-perdido .status-pill { background: rgba(45, 52, 54, 0.1); color: var(--color-dark); }
-/* Estado Dias_Gracia (Naranja) */
-.status-Dias_Gracia .card-top-accent, .status-dias_gracia .card-top-accent { background: #f5b301; } 
-.status-Dias_Gracia .icon-box, .status-Dias_Gracia .status-pill, .status-dias_gracia .icon-box, .status-dias_gracia .status-pill { background: rgba(245, 179, 1, 0.15); color: #d35400; }
 
-/* Estado Remate (Gris - Artículos perdidos/en venta) */
-.status-Remate .card-top-accent, .status-remate .card-top-accent { background: #6c757d; } 
-.status-Remate .icon-box, .status-Remate .status-pill, .status-remate .icon-box, .status-remate .status-pill { background: rgba(108, 117, 125, 0.15); color: #6c757d; }
+/* ==========================================================================
+   RED DE SEGURIDAD: SELECTORES COMODÍN (Atrapan cualquier variación)
+   ========================================================================== */
 
-/* Estado Vendido (Café - Liquidación final) */
-.status-vendido .card-top-accent, .status-Vendido .card-top-accent { background: #795548; } 
-.status-vendido .icon-box, .status-vendido .status-pill, .status-Vendido .icon-box, .status-Vendido .status-pill { background: rgba(121, 85, 72, 0.15); color: #795548; }
+/* VIGENTE */
+[class*="vigente"] .card-top-accent, [class*="Vigente"] .card-top-accent, [class*="VIGENTE"] .card-top-accent { background: var(--color-success) !important; }
+[class*="vigente"] .icon-box, [class*="vigente"] .status-pill,
+[class*="Vigente"] .icon-box, [class*="Vigente"] .status-pill,
+[class*="VIGENTE"] .icon-box, [class*="VIGENTE"] .status-pill { background: rgba(0, 184, 148, 0.1) !important; color: var(--color-success) !important; }
+
+/* VENCIDO */
+[class*="vencido"] .card-top-accent, [class*="Vencido"] .card-top-accent, [class*="VENCIDO"] .card-top-accent { background: var(--color-danger) !important; }
+[class*="vencido"] .icon-box, [class*="vencido"] .status-pill,
+[class*="Vencido"] .icon-box, [class*="Vencido"] .status-pill,
+[class*="VENCIDO"] .icon-box, [class*="VENCIDO"] .status-pill { background: rgba(192, 57, 43, 0.1) !important; color: var(--color-danger) !important; }
+
+/* DESEMPEÑADO */
+[class*="desempe"] .card-top-accent, [class*="Desempe"] .card-top-accent, [class*="DESEMPE"] .card-top-accent { background: #113b64 !important; }
+[class*="desempe"] .icon-box, [class*="desempe"] .status-pill,
+[class*="Desempe"] .icon-box, [class*="Desempe"] .status-pill,
+[class*="DESEMPE"] .icon-box, [class*="DESEMPE"] .status-pill { background: rgba(17, 59, 100, 0.15) !important; color: #113b64 !important; }
+
+/* DIAS DE GRACIA */
+[class*="gracia"] .card-top-accent, [class*="Gracia"] .card-top-accent, [class*="GRACIA"] .card-top-accent { background: #f5b301 !important; }
+[class*="gracia"] .icon-box, [class*="gracia"] .status-pill,
+[class*="Gracia"] .icon-box, [class*="Gracia"] .status-pill,
+[class*="GRACIA"] .icon-box, [class*="GRACIA"] .status-pill { background: rgba(245, 179, 1, 0.15) !important; color: #d35400 !important; }
+
+/* REMATE / VENTA */
+[class*="remate"] .card-top-accent, [class*="Remate"] .card-top-accent, [class*="REMATE"] .card-top-accent,
+[class*="venta"] .card-top-accent, [class*="Venta"] .card-top-accent, [class*="VENTA"] .card-top-accent { background: #6c757d !important; }
+
+[class*="remate"] .icon-box, [class*="remate"] .status-pill,
+[class*="Remate"] .icon-box, [class*="Remate"] .status-pill,
+[class*="REMATE"] .icon-box, [class*="REMATE"] .status-pill,
+[class*="venta"] .icon-box, [class*="venta"] .status-pill,
+[class*="Venta"] .icon-box, [class*="Venta"] .status-pill,
+[class*="VENTA"] .icon-box, [class*="VENTA"] .status-pill { background: rgba(108, 117, 125, 0.15) !important; color: #6c757d !important; }
+
+/* VENDIDO */
+[class*="vendido"] .card-top-accent, [class*="Vendido"] .card-top-accent, [class*="VENDIDO"] .card-top-accent { background: #795548 !important; }
+[class*="vendido"] .icon-box, [class*="vendido"] .status-pill,
+[class*="Vendido"] .icon-box, [class*="Vendido"] .status-pill,
+[class*="VENDIDO"] .icon-box, [class*="VENDIDO"] .status-pill { background: rgba(121, 85, 72, 0.15) !important; color: #795548 !important; }
+
+/* ==========================================================================
+   RED DE SEGURIDAD: SELECTORES COMODÍN (Atrapan cualquier variación)
+   ========================================================================== */
+
+/* Si la clase contiene "vigente" (ej. status-vigente, Vigente, vigente-1) */
+[class*="vigente"] .card-top-accent, [class*="Vigente"] .card-top-accent { background: var(--color-success) !important; }
+[class*="vigente"] .icon-box, [class*="Vigente"] .icon-box, [class*="vigente"] .status-pill { background: rgba(0, 184, 148, 0.1) !important; color: var(--color-success) !important; }
+
+/* Si la clase contiene "vencido" */
+[class*="vencido"] .card-top-accent, [class*="Vencido"] .card-top-accent { background: var(--color-danger) !important; }
+[class*="vencido"] .icon-box, [class*="Vencido"] .icon-box, [class*="vencido"] .status-pill { background: rgba(192, 57, 43, 0.1) !important; color: var(--color-danger) !important; }
+
+/* Si la clase contiene "desempe" (cubre Desempeñado, Desempenado, etc.) */
+[class*="desempe"] .card-top-accent, [class*="Desempe"] .card-top-accent { background: #113b64 !important; }
+[class*="desempe"] .icon-box, [class*="Desempe"] .icon-box, [class*="desempe"] .status-pill { background: rgba(17, 59, 100, 0.15) !important; color: #113b64 !important; }
+
+/* Si la clase contiene "gracia" (cubre Dias_Gracia, dias-gracia, etc.) */
+[class*="gracia"] .card-top-accent, [class*="Gracia"] .card-top-accent { background: #f5b301 !important; }
+[class*="gracia"] .icon-box, [class*="Gracia"] .icon-box, [class*="gracia"] .status-pill { background: rgba(245, 179, 1, 0.15) !important; color: #d35400 !important; }
+
+/* Si la clase contiene "remate" o "venta" */
+[class*="remate"] .card-top-accent, [class*="Remate"] .card-top-accent, [class*="venta"] .card-top-accent { background: #6c757d !important; }
+[class*="remate"] .icon-box, [class*="Remate"] .icon-box, [class*="remate"] .status-pill, [class*="venta"] .icon-box { background: rgba(108, 117, 125, 0.15) !important; color: #6c757d !important; }
+
+/* Si la clase contiene "vendido" */
+[class*="vendido"] .card-top-accent, [class*="Vendido"] .card-top-accent { background: #795548 !important; }
+[class*="vendido"] .icon-box, [class*="Vendido"] .icon-box, [class*="vendido"] .status-pill { background: rgba(121, 85, 72, 0.15) !important; color: #795548 !important; }
 
 /* --- MODALES --- */
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15,44,74,0.7); backdrop-filter: blur(4px); display: flex; justify-content: center; align-items: center; z-index: 2000; opacity: 0; visibility: hidden; transition: 0.3s; }

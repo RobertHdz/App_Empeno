@@ -868,6 +868,7 @@
     text-align: center;
     min-width: 80px; 
     color: white; /* Texto blanco por defecto para fondos oscuros */
+    background-color: #6c757d; /* Fondo gris por defecto si no coincide ninguna clase */
 }
 
 /* =======================================================
@@ -897,6 +898,9 @@
 .status-rematado {
     background-color: #6c757d; 
 }
+.status-Rematado,
+.status-en-venta,
+.status-En_Venta,
 .status-Remate,
 .status-remate {
     background-color: #6c757d; 
@@ -914,11 +918,30 @@
 .status-dias-de-gracia,
 .status-Dias_Gracia,
 .status-dias_gracia,
+.status-Dias,
 .status-días, 
 .status-dias {
     background-color: #fd7e14; 
     color: white;
 }
+
+/* --- RED DE SEGURIDAD (Selectores Comodín) --- */
+[class*="vigente"], [class*="Vigente"], [class*="VIGENTE"] { background-color: #28a745 !important; }
+[class*="vencido"], [class*="Vencido"], [class*="VENCIDO"] { background-color: #dc3545 !important; }
+[class*="desempe"], [class*="Desempe"], [class*="DESEMPE"] { background-color: #113b64 !important; }
+[class*="gracia"], [class*="Gracia"], [class*="GRACIA"] { background-color: #fd7e14 !important; color: white !important; }
+[class*="remate"], [class*="Remate"], [class*="REMATE"] { background-color: #6c757d !important; }
+[class*="venta"], [class*="Venta"], [class*="VENTA"] { background-color: #6c757d !important; }
+[class*="vendido"], [class*="Vendido"], [class*="VENDIDO"] { background-color: #795548 !important; }
+
+/* --- RED DE SEGURIDAD (Selectores Comodín) --- */
+[class*="vigente"] { background-color: #28a745 !important; }
+[class*="vencido"] { background-color: #dc3545 !important; }
+[class*="desempe"] { background-color: #113b64 !important; }
+[class*="gracia"] { background-color: #fd7e14 !important; color: white !important; }
+[class*="remate"] { background-color: #6c757d !important; }
+[class*="venta"] { background-color: #6c757d !important; }
+[class*="vendido"] { background-color: #795548 !important; }
 
 
 

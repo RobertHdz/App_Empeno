@@ -313,6 +313,7 @@ table tbody tr:nth-child(even) {
     font-size: 0.85em;
     font-weight: bold;
     text-transform: uppercase; 
+    color: white;
 }
 
 /* 1. Venta Remate */
@@ -343,4 +344,22 @@ table tbody tr:nth-child(even) {
 .status-reevaluo-accion {
     background-color: #6f42c1; /* Púrpura */
     color: white;
+}
+
+/* ESTADOS GENERALES (Soporte para dashboard) */
+.status-vigente { background-color: #28a745; }
+.status-vencido { background-color: #dc3545; }
+.status-rematado, .status-Remate, .status-remate { background-color: #6c757d; }
+.status-vendido, .status-Vendido { background-color: #795548; }
+.status-desempenado, .status-Desempeñado { background-color: #113b64; }
+
+/* Estado Días de Gracia (Naranja) */
+.status-días-de-gracia,
+.status-dias-de-gracia,
+.status-Dias_Gracia,
+.status-dias_gracia,
+.status-Dias,
+.status-días, 
+.status-dias {
+    background-color: #fd7e14; 
 }

@@ -15,14 +15,21 @@ from . import models, database, auth, schemas
 # --- FUNCIONES DE LIMPIEZA (SANITIZACIÓN) ---
 def limpiar_texto(s: str):
     if not s: return ""
-    # Normalizar para quitar acentos (Pérez -> Perez) y convertir a mayúsculas
-    s = unicodedata.normalize('NFKD', s).encode('ASCII', 'ignore').decode('utf-8')
-    return s.strip().upper()
+    try:
+        s = str(s) # Asegurar que es texto
+        # Normalizar para quitar acentos (Pérez -> Perez) y convertir a mayúsculas
+        s = unicodedata.normalize('NFKD', s).encode('ASCII', 'ignore').decode('utf-8')
+        return s.strip().upper()
+    except Exception:
+        return ""
 
 def limpiar_telefono(s: str):
     if not s: return ""
-    # Quita espacios, guiones y paréntesis
-    return s.replace(" ", "").replace("-", "").replace("(", "").replace(")", "").strip()
+    try:
+        s = str(s)
+        return s.replace(" ", "").replace("-", "").replace("(", "").replace(")", "").strip()
+    except Exception:
+        return ""
 
 # --- FUNCIÓN PARA ACTUALIZAR ESTADOS AUTOMÁTICAMENTE ---
 def actualizar_estados_empenos(db: Session):
@@ -275,8 +282,20 @@ async def mis_empenos(db: Session = Depends(database.get_db), current_user: mode
     if not cliente:
         print("❌ No se encontró perfil de cliente vinculado a este usuario.")
         return [] # Si no tiene perfil de cliente, retorna lista vacía
-    print(f"✅ Cliente encontrado: ID {cliente.id} ({cliente.nombre}). Tiene {len(cliente.empenos)} empeños.")
-    return cliente.empenos
+    
+    # Usamos una consulta directa para asegurar que traemos TODO el historial (Vigentes, Vendidos, etc.)
+    # Ordenados del más reciente al más antiguo
+    empenos = db.query(models.Empeno).filter(models.Empeno.cliente_id == cliente.id).order_by(models.Empeno.id.desc()).all()
+    
+    # LIMPIEZA DE EMERGENCIA: Quitar espacios en blanco de los estados para evitar errores de CSS
+    for emp in empenos:
+        if emp.estado:
+            emp.estado = emp.estado.strip()
+    
+    # LOG DE DIAGNÓSTICO: Ver qué estados se están enviando
+    estados_log = [e.estado for e in empenos]
+    print(f"✅ Cliente encontrado: ID {cliente.id}. Enviando {len(empenos)} contratos. Estados: {estados_log}")
+    return empenos
 
 # --- NUEVO ENDPOINT: VER CREDENCIALES (SOLO ADMIN/DUEÑOS) ---
 @app.get("/admin/clientes/{cliente_id}/credenciales")
@@ -305,19 +324,28 @@ async def obtener_credenciales_cliente(
 # --- RUTA DE DIAGNÓSTICO (NUEVA) ---
 @app.get("/debug/clientes")
 async def debug_clientes(db: Session = Depends(database.get_db)):
-    clientes = db.query(models.Cliente).all()
-    resultado = []
-    for c in clientes:
-        resultado.append({
-            "id": c.id,
-            "nombre_raw": c.nombre,
-            "nombre_clean": limpiar_texto(c.nombre),
-            "telefono_raw": c.telefono,
-            "telefono_clean": limpiar_telefono(c.telefono),
-            "user_id": c.user_id, # Si esto es null, no tiene usuario. Si tiene numero, ya tiene dueño.
-            "empenos_count": len(c.empenos)
-        })
-    return resultado
+    try:
+        clientes = db.query(models.Cliente).all()
+        resultado = []
+        for c in clientes:
+            # Buscar el usuario web asociado para mostrar credenciales
+            login_info = "SIN USUARIO WEB"
+            if c.user_id:
+                u = db.query(models.User).filter(models.User.id == c.user_id).first()
+                if u:
+                    pass_visible = u.password_plain if u.password_plain else "Encriptada (No visible)"
+                    login_info = f"Usuario: '{u.username}' | Contraseña: '{pass_visible}'"
+
+            resultado.append({
+                "id": c.id,
+                "nombre": c.nombre,
+                "telefono": c.telefono,
+                "CREDENCIALES_LOGIN": login_info,  # <--- AQUÍ VERÁS CON QUÉ ENTRAR
+                "empenos_count": len(c.empenos)
+            })
+        return resultado
+    except Exception as e:
+        return {"error": "Ocurrió un error al leer la base de datos", "detalle": str(e)}
 
 @app.get("/debug/generar_empeno_prueba")
 async def debug_generar_empeno(db: Session = Depends(database.get_db)):
@@ -346,61 +374,101 @@ async def debug_generar_empeno(db: Session = Depends(database.get_db)):
 # --- HERRAMIENTA DE CORRECCIÓN DE DUPLICADOS ---
 @app.get("/debug/corregir_duplicados")
 async def corregir_duplicados(db: Session = Depends(database.get_db)):
-    # 1. Obtener clientes con usuario (Los "Oficiales")
-    clientes_con_usuario = db.query(models.Cliente).filter(models.Cliente.user_id != None).all()
-    
-    # 2. Obtener clientes sin usuario (Los "Huérfanos" que tienen los empeños)
-    clientes_huerfanos = db.query(models.Cliente).filter(models.Cliente.user_id == None).all()
-    
-    log = []
-    cambios = False
-    procesados = set() # Para no intentar borrar el mismo dos veces
-
-    for oficial in clientes_con_usuario:
-        oficial_tel = limpiar_telefono(oficial.telefono)
-        oficial_nom = limpiar_texto(oficial.nombre)
-        oficial_ape = limpiar_texto(oficial.apellidos)
+    try:
+        # 1. Obtener clientes con usuario (Los "Oficiales")
+        clientes_con_usuario = db.query(models.Cliente).filter(models.Cliente.user_id != None).all()
         
-        for huerfano in clientes_huerfanos:
-            if huerfano.id in procesados: continue
+        # 2. Obtener clientes sin usuario (Los "Huérfanos" que tienen los empeños)
+        clientes_huerfanos = db.query(models.Cliente).filter(models.Cliente.user_id == None).all()
+        
+        log = []
+        cambios = False
+        procesados = set() 
 
-            match = False
-            razon = ""
+        for oficial in clientes_con_usuario:
+            oficial_tel = limpiar_telefono(oficial.telefono)
+            oficial_nom = limpiar_texto(oficial.nombre)
+            oficial_ape = limpiar_texto(oficial.apellidos)
             
-            # A. Comparar Teléfonos (Prioridad)
-            huerfano_tel = limpiar_telefono(huerfano.telefono)
-            if oficial_tel and huerfano_tel and oficial_tel == huerfano_tel:
-                match = True
-                razon = f"Teléfono coincidente ({oficial_tel})"
-            
-            # B. Comparar Nombres (Si no hubo match por teléfono)
-            if not match:
-                huerfano_nom = limpiar_texto(huerfano.nombre)
-                huerfano_ape = limpiar_texto(huerfano.apellidos)
-                if oficial_nom and oficial_ape and oficial_nom == huerfano_nom and oficial_ape == huerfano_ape:
-                    match = True
-                    razon = f"Nombre coincidente ({oficial_nom} {oficial_ape})"
-            
-            if match:
-                # Mover empeños del huérfano al oficial
-                count = 0
-                for emp in huerfano.empenos:
-                    emp.cliente_id = oficial.id
-                    count += 1
+            for huerfano in clientes_huerfanos:
+                if huerfano.id in procesados: continue
+
+                match = False
+                razon = ""
                 
-                log.append(f"🔧 FUSIONADO: Cliente Huérfano ID {huerfano.id} -> Oficial ID {oficial.id}. Razón: {razon}. Empeños movidos: {count}")
-                db.delete(huerfano)
-                procesados.add(huerfano.id)
-                cambios = True
+                # A. Comparar Teléfonos (Prioridad)
+                huerfano_tel = limpiar_telefono(huerfano.telefono)
+                if oficial_tel and huerfano_tel and oficial_tel == huerfano_tel:
+                    match = True
+                    razon = f"Teléfono coincidente ({oficial_tel})"
+                
+                # B. Comparar Nombres (Si no hubo match por teléfono)
+                if not match:
+                    huerfano_nom = limpiar_texto(huerfano.nombre)
+                    huerfano_ape = limpiar_texto(huerfano.apellidos)
+                    if oficial_nom and oficial_ape and oficial_nom == huerfano_nom and oficial_ape == huerfano_ape:
+                        match = True
+                        razon = f"Nombre coincidente ({oficial_nom} {oficial_ape})"
+                
+                if match:
+                    # Mover empeños del huérfano al oficial
+                    count = 0
+                    for emp in huerfano.empenos:
+                        emp.cliente_id = oficial.id
+                        count += 1
+                    
+                    log.append(f"🔧 FUSIONADO: Cliente Huérfano ID {huerfano.id} -> Oficial ID {oficial.id}. Razón: {razon}. Empeños movidos: {count}")
+                    db.delete(huerfano)
+                    procesados.add(huerfano.id)
+                    cambios = True
+        
+        if cambios: 
+            db.commit()
+            return {"mensaje": "Proceso de corrección terminado con ÉXITO", "detalles": log}
+        
+        return {
+            "mensaje": "No se encontraron duplicados automáticos.", 
+            "diagnostico": f"Se analizaron {len(clientes_con_usuario)} cuentas oficiales y {len(clientes_huerfanos)} perfiles huérfanos."
+        }
+    except Exception as e:
+        return {"error": "Error crítico ejecutando la corrección", "detalle": str(e)}
+
+# --- HERRAMIENTA DE SIMULACIÓN DE HISTORIAL (DEBUG) ---
+@app.get("/debug/simular_historial")
+async def debug_simular_historial(db: Session = Depends(database.get_db)):
+    # Buscamos el primer cliente que tenga usuario web (asumimos que es el tuyo para pruebas)
+    cliente = db.query(models.Cliente).filter(models.Cliente.user_id != None).first()
     
-    if cambios: 
-        db.commit()
-        return {"mensaje": "Proceso de corrección terminado con ÉXITO", "detalles": log}
+    if not cliente:
+         return {"error": "No se encontró ningún cliente con usuario web vinculado."}
+         
+    if not cliente.empenos:
+        return {"error": "No tienes contratos registrados para simular el historial."}
     
-    return {
-        "mensaje": "No se encontraron duplicados automáticos.", 
-        "diagnostico": f"Se analizaron {len(clientes_con_usuario)} cuentas oficiales y {len(clientes_huerfanos)} perfiles huérfanos. Verifica manualmente en /debug/clientes si los datos coinciden."
-    }
+    empenos = cliente.empenos
+    log = []
+    
+    # Lista de estados para probar que TODOS se ven
+    estados_demo = ["Vendido", "Remate", "Desempeñado", "Vigente", "Dias_Gracia"]
+    
+    for i, emp in enumerate(empenos):
+        # Asignamos un estado diferente a cada contrato rotativamente
+        estado_nuevo = estados_demo[i % len(estados_demo)]
+        emp.estado = estado_nuevo
+        
+        # AJUSTE DE FECHAS: Para evitar que el sistema los cambie automáticamente
+        if estado_nuevo == "Vigente":
+            # Vence en 30 días (Futuro)
+            emp.fecha_vencimiento = date.today() + timedelta(days=30)
+        elif estado_nuevo == "Dias_Gracia":
+            # Venció hace 2 días (Dentro del rango de 5 días de gracia)
+            emp.fecha_vencimiento = date.today() - timedelta(days=2)
+        # Para los demás, la fecha no importa tanto
+        
+        log.append(f"Contrato {emp.id} ({emp.marca_modelo}) -> {estado_nuevo}")
+        
+    db.commit()
+    return {"mensaje": "✅ Historial simulado correctamente. Recarga tu aplicación para ver los colores.", "cambios": log}
 
 # Ruta raíz redirige al login
 from fastapi.responses import RedirectResponse

@@ -815,6 +815,8 @@ table tbody tr:nth-child(even) {
   background-color: #6c757d; /* Gris Plomo */
   color: white;
 }
+.status-Rematado,
+.status-En_Venta,
 .status-Remate,
 .status-remate {
   background-color: #6c757d; /* Gris Plomo */
@@ -836,6 +838,7 @@ table tbody tr:nth-child(even) {
 .status-dias-de-gracia,
 .status-Dias_Gracia,
 .status-dias_gracia,
+.status-Dias,
 .status-días, 
 .status-dias {
     background-color: #fd7e14; 

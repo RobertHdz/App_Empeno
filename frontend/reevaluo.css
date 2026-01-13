@@ -834,6 +834,9 @@ table tbody tr:nth-child(even) {
 .status-rematado {
   background-color: #6c757d; /* Gris */
 }
+.status-Rematado,
+.status-en-venta,
+.status-En_Venta,
 .status-Remate,
 .status-remate {
   background-color: #6c757d; /* Gris */
@@ -844,6 +847,7 @@ table tbody tr:nth-child(even) {
 .status-dias-de-gracia,
 .status-Dias_Gracia,
 .status-dias_gracia,
+.status-Dias,
 .status-días, 
 .status-dias {
     background-color: #fd7e14; 
