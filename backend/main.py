@@ -2,13 +2,14 @@ from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from typing import List
 from datetime import timedelta, date
 import time
 from sqlalchemy.exc import OperationalError
 import unicodedata
 import os
+import re
 
 from . import models, database, auth, schemas
 
@@ -93,18 +94,26 @@ while True:
         # --- CREAR ADMIN POR DEFECTO AUTOMÁTICAMENTE ---
         db_temp = database.SessionLocal()
         try:
-            if not db_temp.query(models.User).filter(models.User.username == "admin").first():
+            admin_user = db_temp.query(models.User).filter(models.User.username == "admin").first()
+            if not admin_user:
                 print("👤 Creando usuario 'admin' por defecto...")
-                admin_user = models.User(
+                new_admin = models.User(
                     username="admin",
                     hashed_password=auth.get_password_hash("123"),
                     password_plain="123",
                     nombre_completo="Administrador Sistema",
                     rol="admin"
                 )
-                db_temp.add(admin_user)
-                db_temp.commit()
+                db_temp.add(new_admin)
                 print("✅ Usuario admin creado: User='admin', Pass='123'")
+            else:
+                # SI YA EXISTE, FORZAMOS LA CONTRASEÑA A "123"
+                print("🔄 Usuario 'admin' detectado. Restableciendo contraseña a '123'...")
+                admin_user.hashed_password = auth.get_password_hash("123")
+                admin_user.password_plain = "123"
+                print("✅ Contraseña de admin actualizada a '123'")
+            
+            db_temp.commit()
         finally:
             db_temp.close()
         # -----------------------------------------------
@@ -254,16 +263,40 @@ async def crear_empeno(payload: schemas.NuevoEmpenoSchema, db: Session = Depends
         print(f"  -> ✅ Nuevo cliente creado (ID: {cliente.id}).")
     
     # 2. Crear Empeño
-    # Usamos model_dump() que es la forma correcta en Pydantic V2
     empeno_data = payload.empeno.model_dump()
-    
     nuevo_empeno = models.Empeno(**empeno_data, cliente_id=cliente.id)
     db.add(nuevo_empeno)
     db.commit()
     db.refresh(nuevo_empeno)
-    print(f"  -> ✅ Nuevo empeño creado (ID: {nuevo_empeno.id}) y asignado al cliente (ID: {cliente.id}).")
     
+    # 3. Registrar Acción para el Dashboard
+    nueva_accion = models.Accion(
+        tipo_accion="Nuevo Empeño",
+        empeno_id=nuevo_empeno.id,
+        cliente_nombre=f"{cliente.nombre} {cliente.apellidos}",
+        articulo=nuevo_empeno.marca_modelo,
+        monto=nuevo_empeno.monto_prestamo,
+        usuario_id=current_user.id
+    )
+    db.add(nueva_accion)
+    db.commit()
+    
+    print(f"  -> ✅ Nuevo empeño creado (ID: {nuevo_empeno.id}) y acción registrada.")
     return nuevo_empeno
+
+@app.get("/dashboard/tabla")
+async def get_dashboard_tabla(db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
+    acciones = db.query(models.Accion).order_by(models.Accion.fecha.desc()).limit(10).all()
+    resultado = []
+    for acc in acciones:
+        resultado.append({
+            "cliente": acc.cliente_nombre,
+            "accion": acc.tipo_accion,
+            "articulo": acc.articulo,
+            "monto": acc.monto,
+            "fecha": acc.fecha.strftime("%Y-%m-%d %H:%M")
+        })
+    return resultado
 
 @app.get("/empenos/todos", response_model=List[schemas.EmpenoResponse])
 async def leer_empenos(db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
@@ -296,6 +329,366 @@ async def mis_empenos(db: Session = Depends(database.get_db), current_user: mode
     estados_log = [e.estado for e in empenos]
     print(f"✅ Cliente encontrado: ID {cliente.id}. Enviando {len(empenos)} contratos. Estados: {estados_log}")
     return empenos
+
+@app.get("/clientes/buscar")
+async def buscar_clientes(
+    q: str = "",
+    db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(auth.get_current_user)
+):
+    print(f"🔍 BUSCAR CLIENTES: q='{q}'")
+    if not q:
+        return []
+    
+    # Actualizar estados para que el cliente vea la info real (Vencido/Vigente)
+    actualizar_estados_empenos(db)
+    
+    try:
+        q_clean = limpiar_texto(q)
+        q_tel = limpiar_telefono(q)
+        q_raw = q.strip()
+        
+        from sqlalchemy import or_, and_
+        
+        filtros_or = []
+        
+        # 1. Búsqueda por Teléfono
+        if q_tel:
+            filtros_or.append(models.Cliente.telefono.like(f"%{q_tel}%"))
+            
+        # 2. Búsqueda Directa (Raw)
+        if q_raw:
+            filtros_or.append(models.Cliente.nombre.ilike(f"%{q_raw}%"))
+            filtros_or.append(models.Cliente.apellidos.ilike(f"%{q_raw}%"))
+            filtros_or.append(models.Cliente.telefono.ilike(f"%{q_raw}%"))
+
+        # 3. Búsqueda por Palabras (Nombre/Apellido)
+        if q_clean:
+            q_clean_spaces = re.sub(r'[^A-Z0-9]', ' ', q_clean)
+            palabras = q_clean_spaces.split()
+            
+            if palabras:
+                condiciones_palabras = []
+                for palabra in palabras:
+                    condiciones_palabras.append(
+                        or_(
+                            models.Cliente.nombre.ilike(f"%{palabra}%"),
+                            models.Cliente.apellidos.ilike(f"%{palabra}%")
+                        )
+                    )
+                filtros_or.append(and_(*condiciones_palabras))
+
+        if not filtros_or:
+            return []
+
+        # Agregamos joinedload para cargar los empeños eficientemente
+        clientes = db.query(models.Cliente).options(joinedload(models.Cliente.empenos)).filter(or_(*filtros_or)).all()
+        print(f"   -> Encontrados: {len(clientes)}")
+        
+        # Devolvemos el cliente CON sus empeños detallados
+        return [{
+            "id": c.id, 
+            "nombre": c.nombre, 
+            "apellidos": c.apellidos, 
+            "telefono": c.telefono, 
+            "direccion": c.direccion, 
+            "ine": c.ine, 
+            "user_id": c.user_id,
+            "empenos": [{
+                "id": e.id,
+                "marca_modelo": e.marca_modelo,
+                "monto_prestamo": e.monto_prestamo,
+                "interes_mensual_pct": e.interes_mensual_pct,
+                "fecha_empeno": e.fecha_empeno,
+                "fecha_vencimiento": e.fecha_vencimiento,
+                "estado": e.estado,
+                "valor_valuo": e.valor_valuo,
+                "categoria": e.categoria,
+                "descripcion": e.descripcion,
+                "num_serie_peso": e.num_serie_peso,
+                "observaciones": e.observaciones,
+                "cliente_id": e.cliente_id
+            } for e in c.empenos]
+        } for c in clientes]
+    except Exception as e:
+        print(f"❌ ERROR CRÍTICO EN BUSCAR CLIENTES: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error interno al buscar clientes: {str(e)}")
+
+@app.get("/empenos/buscar", response_model=List[schemas.EmpenoResponse])
+async def buscar_empenos(
+    q: str = "",
+    db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(auth.get_current_user)
+):
+    print(f"🔍 BUSCAR EMPENOS: q='{q}'")
+    if not q:
+        return []
+    
+    # Actualizar estados antes de buscar para mostrar info real
+    actualizar_estados_empenos(db)
+
+    try:
+        q_clean = limpiar_texto(q)
+        q_tel = limpiar_telefono(q)
+        q_raw = q.strip()
+        
+        from sqlalchemy import or_, and_
+        
+        filtros_or = []
+        
+        # 1. Búsqueda por Folio (ID)
+        if str(q).strip().isdigit():
+            filtros_or.append(models.Empeno.id == int(str(q).strip()))
+            
+        # 2. Búsqueda por Teléfono del Cliente
+        if q_tel:
+            filtros_or.append(models.Cliente.telefono.like(f"%{q_tel}%"))
+        
+        # 3. Búsqueda Directa (Raw)
+        if q_raw:
+            filtros_or.append(models.Cliente.nombre.ilike(f"%{q_raw}%"))
+            filtros_or.append(models.Cliente.apellidos.ilike(f"%{q_raw}%"))
+            filtros_or.append(models.Cliente.telefono.ilike(f"%{q_raw}%"))
+
+        # 4. Búsqueda Inteligente por Nombre/Apellido
+        if q_clean:
+            q_clean_spaces = re.sub(r'[^A-Z0-9]', ' ', q_clean)
+            palabras = q_clean_spaces.split()
+            
+            if palabras:
+                condiciones_palabras = []
+                for palabra in palabras:
+                    condiciones_palabras.append(
+                        or_(
+                            models.Cliente.nombre.ilike(f"%{palabra}%"),
+                            models.Cliente.apellidos.ilike(f"%{palabra}%")
+                        )
+                    )
+                filtros_or.append(and_(*condiciones_palabras))
+        
+        if not filtros_or:
+            return []
+        
+        resultados = db.query(models.Empeno).join(models.Cliente).options(joinedload(models.Empeno.cliente)).filter(or_(*filtros_or)).all()
+        
+        # --- SERIALIZACIÓN MANUAL SEGURA (A PRUEBA DE FALLOS) ---
+        safe_results = []
+        for r in resultados:
+            # Construimos los datos del cliente con cuidado
+            c_data = None
+            if r.cliente:
+                c_data = {
+                    "nombre": r.cliente.nombre,
+                    "apellidos": r.cliente.apellidos,
+                    "telefono": r.cliente.telefono,
+                    "ine": r.cliente.ine,
+                    "direccion": r.cliente.direccion
+                }
+            
+            # Agregamos el empeño a la lista
+            safe_results.append({
+                "id": r.id,
+                "estado": r.estado,
+                "cliente_id": r.cliente_id,
+                "cliente": c_data,
+                "categoria": r.categoria,
+                "marca_modelo": r.marca_modelo,
+                "descripcion": r.descripcion,
+                "num_serie_peso": r.num_serie_peso,
+                "observaciones": r.observaciones,
+                "valor_valuo": r.valor_valuo,
+                "monto_prestamo": r.monto_prestamo,
+                "interes_mensual_pct": r.interes_mensual_pct,
+                "fecha_empeno": r.fecha_empeno,
+                "fecha_vencimiento": r.fecha_vencimiento
+            })
+
+        print(f"   -> Encontrados y procesados: {len(safe_results)}")
+        return safe_results
+    except Exception as e:
+        print(f"❌ ERROR CRÍTICO EN BUSCAR EMPENOS: {str(e)}")
+        # Retornamos lista vacía en lugar de error 500 para que la app no se congele
+        return []
+
+@app.post("/empenos/{id}/refrendo")
+async def refrendo_empeno(
+    id: int,
+    payload: schemas.RefrendoPayload,
+    db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(auth.get_current_user)
+):
+    empeno = db.query(models.Empeno).filter(models.Empeno.id == id).first()
+    if not empeno:
+        raise HTTPException(status_code=404, detail="Empeño no encontrado")
+    
+    if empeno.estado in ["Desempeñado", "Vendido"]:
+        raise HTTPException(status_code=400, detail="El empeño no se puede refrendar en su estado actual.")
+
+    # Lógica: Sumar 30 días. Si ya venció, desde hoy. Si no, desde su vencimiento.
+    hoy = date.today()
+    if empeno.fecha_vencimiento < hoy:
+        empeno.fecha_vencimiento = hoy + timedelta(days=30)
+    else:
+        empeno.fecha_vencimiento = empeno.fecha_vencimiento + timedelta(days=30)
+        
+    # Actualizar estado a Vigente (incluso si estaba en Remate/Recuperación)
+    if empeno.estado in ["Vencido", "Dias_Gracia", "Remate"]:
+        empeno.estado = "Vigente"
+
+    # Aplicar Abono a Capital si existe
+    if payload.abono_capital > 0:
+        if payload.abono_capital >= empeno.monto_prestamo:
+             raise HTTPException(status_code=400, detail="El abono a capital cubre el total. Por favor realice un Desempeño.")
+        empeno.monto_prestamo -= payload.abono_capital
+        
+    # Registrar Acción con el monto total pagado (incluyendo recargos y multas)
+    nueva_accion = models.Accion(
+        tipo_accion="Refrendo",
+        empeno_id=empeno.id,
+        cliente_nombre=f"{empeno.cliente.nombre} {empeno.cliente.apellidos}",
+        articulo=empeno.marca_modelo,
+        monto=payload.total_pagado,
+        usuario_id=current_user.id
+    )
+    db.add(nueva_accion)
+    db.commit()
+    return {"mensaje": "Refrendo aplicado exitosamente", "nuevo_vencimiento": empeno.fecha_vencimiento, "estado": empeno.estado}
+
+@app.post("/empenos/{id}/desempeno")
+async def desempeno_empeno(
+    id: int,
+    payload: schemas.DesempenoPayload,
+    db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(auth.get_current_user)
+):
+    empeno = db.query(models.Empeno).filter(models.Empeno.id == id).first()
+    if not empeno:
+        raise HTTPException(status_code=404, detail="Empeño no encontrado")
+        
+    if empeno.estado in ["Desempeñado", "Vendido"]:
+        raise HTTPException(status_code=400, detail="El empeño ya está cerrado.")
+
+    empeno.estado = "Desempeñado"
+    
+    # Registrar Acción con el monto total cobrado (Capital + Interés + Recargos)
+    nueva_accion = models.Accion(
+        tipo_accion="Desempeño",
+        empeno_id=empeno.id,
+        cliente_nombre=f"{empeno.cliente.nombre} {empeno.cliente.apellidos}",
+        articulo=empeno.marca_modelo,
+        monto=payload.total_pagado,
+        usuario_id=current_user.id
+    )
+    db.add(nueva_accion)
+    db.commit()
+    return {"mensaje": "Desempeño realizado exitosamente", "estado": empeno.estado}
+
+@app.put("/empenos/{id}/editar")
+async def editar_empeno(
+    id: int,
+    payload: schemas.EmpenoEditSchema,
+    db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(auth.get_current_user)
+):
+    empeno = db.query(models.Empeno).filter(models.Empeno.id == id).first()
+    if not empeno:
+        raise HTTPException(status_code=404, detail="Empeño no encontrado")
+    
+    # Actualizar datos del cliente
+    if empeno.cliente:
+        empeno.cliente.nombre = payload.nombre
+        empeno.cliente.apellidos = payload.apellidos
+        empeno.cliente.telefono = payload.telefono
+        empeno.cliente.direccion = payload.direccion
+    
+    # Actualizar datos del empeño
+    empeno.categoria = payload.categoria
+    empeno.marca_modelo = payload.marca_modelo
+    empeno.estado = payload.estado
+    empeno.fecha_empeno = payload.fecha_empeno
+    empeno.fecha_vencimiento = payload.fecha_vencimiento
+    
+    db.commit()
+    return {"mensaje": "Empeño y cliente actualizados correctamente"}
+
+@app.get("/empenos/remates")
+async def leer_remates(db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
+    # Actualizamos estados para asegurar que los vencidos pasen a remate
+    actualizar_estados_empenos(db)
+    # Buscamos empeños en estado Remate o Vendido
+    remates = db.query(models.Empeno).filter(models.Empeno.estado.in_(["Remate", "Vendido"])).all()
+    resultado = []
+    for r in remates:
+        resultado.append({
+            "id": r.id,
+            "cliente": f"{r.cliente.nombre} {r.cliente.apellidos}" if r.cliente else "N/A",
+            "marca_modelo": r.marca_modelo,
+            "monto_prestamo": r.monto_prestamo,
+            "fecha_empeno": r.fecha_empeno,
+            "estado": r.estado
+        })
+    return resultado
+
+@app.post("/empenos/{id}/venta")
+async def vender_empeno(
+    id: int,
+    payload: schemas.VentaPayload,
+    db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(auth.get_current_user)
+):
+    empeno = db.query(models.Empeno).filter(models.Empeno.id == id).first()
+    if not empeno:
+        raise HTTPException(status_code=404, detail="Empeño no encontrado")
+    
+    empeno.estado = "Vendido"
+    
+    # Registrar Acción de Venta
+    nueva_accion = models.Accion(
+        tipo_accion="Venta/Remate",
+        empeno_id=empeno.id,
+        cliente_nombre=f"{empeno.cliente.nombre} {empeno.cliente.apellidos}" if empeno.cliente else "N/A",
+        articulo=empeno.marca_modelo,
+        monto=payload.precio_venta,
+        usuario_id=current_user.id
+    )
+    db.add(nueva_accion)
+    db.commit()
+    return {"mensaje": "Venta registrada exitosamente"}
+
+@app.post("/empenos/{id}/reevaluo")
+async def reevaluo_empeno(
+    id: int,
+    payload: schemas.ReevaluoPayload,
+    db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(auth.get_current_user)
+):
+    empeno = db.query(models.Empeno).filter(models.Empeno.id == id).first()
+    if not empeno:
+        raise HTTPException(status_code=404, detail="Empeño no encontrado")
+    
+    if empeno.estado in ["Desempeñado", "Vendido"]:
+        raise HTTPException(status_code=400, detail="No se puede reevaluar un empeño cerrado.")
+
+    # Calcular diferencia para registrar en la acción
+    diferencia = payload.nuevo_prestamo - empeno.monto_prestamo
+    
+    # Actualizar datos
+    empeno.monto_prestamo = payload.nuevo_prestamo
+    empeno.valor_valuo = payload.nuevo_valuo
+    empeno.interes_mensual_pct = payload.nuevo_interes
+    
+    # Registrar Acción de Revalúo
+    nueva_accion = models.Accion(
+        tipo_accion="Revalúo",
+        empeno_id=empeno.id,
+        cliente_nombre=f"{empeno.cliente.nombre} {empeno.cliente.apellidos}" if empeno.cliente else "N/A",
+        articulo=empeno.marca_modelo,
+        monto=diferencia,
+        usuario_id=current_user.id
+    )
+    db.add(nueva_accion)
+    db.commit()
+    return {"mensaje": "Revalúo registrado exitosamente"}
 
 # --- NUEVO ENDPOINT: VER CREDENCIALES (SOLO ADMIN/DUEÑOS) ---
 @app.get("/admin/clientes/{cliente_id}/credenciales")

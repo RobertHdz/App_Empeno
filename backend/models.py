@@ -50,3 +50,14 @@ class Empeno(Base):
     
     # Relaciones
     cliente = relationship("Cliente", back_populates="empenos")
+
+class Accion(Base):
+    __tablename__ = "acciones"
+    id = Column(Integer, primary_key=True, index=True)
+    tipo_accion = Column(String(50))  # 'Nuevo Empeño', 'Refrendo', 'Desempeño', 'Revalúo', 'Venta/Remate'
+    empeno_id = Column(Integer, ForeignKey("empenos.id"), nullable=True)
+    cliente_nombre = Column(String(200))
+    articulo = Column(String(200))
+    monto = Column(Float)  # Puede ser positivo o negativo
+    fecha = Column(DateTime, default=func.now())
+    usuario_id = Column(Integer, ForeignKey("users.id"), nullable=True)

@@ -44,7 +44,7 @@
     </nav>
 
     <div class="sidebar-footer">
-      <a href="index.html" class="logout-button">
+      <a href="#" class="logout-button">
         <span class="icon">&#128682;</span> Cerrar Sesión
       </a>
     </div>
@@ -119,14 +119,14 @@
             alert('Sesión cerrada correctamente');
 
             // 3. Redirigimos al Login
-            window.location.href = '/';
+            window.location.href = 'login.html';
         });
     }
 
     // Lógica de PROTECCIÓN (Si no tienes llave, ¡fuera de aquí!)
     const token = localStorage.getItem('token_auto_empeno');
     if (!token) {
-        window.location.href = '/';
+        window.location.href = 'login.html';
     }
     // Función para dar formato de dinero ($1,500.00)
     const formatoMoneda = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' });

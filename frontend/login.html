@@ -284,12 +284,23 @@
                 // Limpiar campos
                 registerForm.reset();
             } else {
-                const err = await res.json();
-                regErrorMessage.innerText = err.detail || "Error al registrar";
+                // Intentar leer JSON, si falla leer texto (para errores 500/HTML)
+                let mensajeError = "Error al registrar";
+                try {
+                    const err = await res.json();
+                    // Si es un error de validación (lista), lo convertimos a texto
+                    mensajeError = typeof err.detail === 'string' ? err.detail : JSON.stringify(err.detail);
+                } catch (jsonError) {
+                    const textError = await res.text();
+                    console.error("Error respuesta no-JSON:", textError);
+                    mensajeError = "Error del servidor. Revisa la consola (F12).";
+                }
+                regErrorMessage.innerText = mensajeError;
                 regErrorMessage.style.display = "block";
             }
         } catch (error) {
-            regErrorMessage.innerText = "Error de conexión";
+            console.error(error);
+            regErrorMessage.innerText = "Error de conexión: " + error.message;
             regErrorMessage.style.display = "block";
         }
     });
